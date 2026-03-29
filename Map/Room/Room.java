@@ -1,4 +1,8 @@
+package Map.Room;
 import java.util.Random;
+
+import Characters.Enemy;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
@@ -13,11 +17,11 @@ public class Room {
     // the top left corner on the map grid.
     final public int width = 13;
     final public int height = 9;
-    int gridX;
-    int gridY;
+    public int gridX;
+    public int gridY;
 
     // some info about room
-    String type;
+    public String type;
     boolean isCleared;
     private Random rng;
 

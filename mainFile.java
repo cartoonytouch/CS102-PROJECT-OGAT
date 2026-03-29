@@ -1,5 +1,10 @@
 import javax.swing.JFrame;
 
+import Map.mapGenerator;
+import Map.Room.Room;
+import Renderers.MapRenderPanel;
+import Renderers.RoomRenderPanel;
+
 public class mainFile {
     public static Room[][] mapGrid;
     public static String testSeed = "3";

@@ -1,5 +1,7 @@
+package Items.Weapons;
 import java.awt.event.*;
 
+import Items.Item;
 
 public abstract class Weapon extends Item {
     

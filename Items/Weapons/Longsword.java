@@ -1,3 +1,4 @@
+package Items.Weapons;
 public class Longsword extends Weapon{
     
     Longsword()

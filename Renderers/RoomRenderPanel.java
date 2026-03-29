@@ -1,4 +1,8 @@
+package Renderers;
 import javax.swing.JPanel;
+
+import Map.Room.*;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Dimension;
@@ -29,11 +33,11 @@ public class RoomRenderPanel extends JPanel {
         try
         {
             // Modify string parameters to match exact local file paths
-            wallSprite = ImageIO.read(new File("wall.png"));
-            floorSprite = ImageIO.read(new File("floor.png"));
-            pitSprite = ImageIO.read(new File("pit.png"));
-            rockSprite = ImageIO.read(new File("rock.png"));
-            doorSprite = ImageIO.read(new File("door.png"));
+            wallSprite = ImageIO.read(new File("Assets/RoomAssets/wall.png"));
+            floorSprite = ImageIO.read(new File("Assets/RoomAssets/floor.png"));
+            pitSprite = ImageIO.read(new File("Assets/RoomAssets/pit.png"));
+            rockSprite = ImageIO.read(new File("Assets/RoomAssets/rock.png"));
+            doorSprite = ImageIO.read(new File("Assets/RoomAssets/door.png"));
         }
         catch (IOException e)
         {

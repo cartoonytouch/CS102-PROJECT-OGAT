@@ -1,4 +1,8 @@
+package Renderers;
 import javax.swing.JPanel;
+
+import Map.Room.Room;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Dimension;
@@ -23,11 +27,11 @@ public class MapRenderPanel extends JPanel {
     public MapRenderPanel(Room[][] activeGrid) {
         try
         {
-            startRoomSprite = ImageIO.read(new File("startRoom.png"));
-            emptyRoomSprite = ImageIO.read(new File("emptyRoom.png"));
-            enemyRoomSprite = ImageIO.read(new File("enemyRoom.png"));
-            bossRoomSprite = ImageIO.read(new File("bossRoom.png"));
-            shopRoomSprite = ImageIO.read(new File("shopRoom.png"));    
+            startRoomSprite = ImageIO.read(new File("Assets/MapAssets/startRoom.png"));
+            emptyRoomSprite = ImageIO.read(new File("Assets/MapAssets/emptyRoom.png"));
+            enemyRoomSprite = ImageIO.read(new File("Assets/MapAssets/enemyRoom.png"));
+            bossRoomSprite = ImageIO.read(new File("Assets/MapAssets/bossRoom.png"));
+            shopRoomSprite = ImageIO.read(new File("Assets/MapAssets/shopRoom.png"));    
         }
         catch (IOException e)
         {

@@ -1,3 +1,4 @@
+package Items.Weapons;
 public class GreatAxe extends Weapon{
 
     GreatAxe()

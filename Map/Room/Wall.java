@@ -1,3 +1,4 @@
+package Map.Room;
 public class Wall extends RoomObjects{
     int coordX;
     int coordY;

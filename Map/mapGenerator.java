@@ -1,4 +1,9 @@
+package Map;
+
 import java.util.Random;
+
+import Map.Room.Room;
+
 import java.util.ArrayList;
 import java.util.List;
 

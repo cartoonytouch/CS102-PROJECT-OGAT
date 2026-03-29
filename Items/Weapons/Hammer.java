@@ -1,3 +1,4 @@
+package Items.Weapons;
 public class Hammer extends Weapon{
     
     

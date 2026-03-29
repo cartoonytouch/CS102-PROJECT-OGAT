@@ -1,3 +1,4 @@
+package Map.Room;
 public class Tile extends FloorObjects{
 
     int coordX;

@@ -1,8 +1,10 @@
+package Map.Room;
+
 
 
 public class Door {
-    int coordX;
-    int coordY;
+    public int coordX;
+    public int coordY;
     public Door(int dCoordX, int dCoordY, int direction)
     {
         coordX = dCoordX;
