@@ -70,6 +70,10 @@ public abstract class Character extends Entity {
         }
 
     }
+    public void update() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'update'");
+    }
 
 
 }

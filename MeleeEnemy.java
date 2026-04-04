@@ -94,13 +94,13 @@ public class MeleeEnemy extends Enemy{
                 collision = true;
             }
 
-            if(gp.chest != null){
+            // if(gp.chest != null){
 
-                Rectangle boxObject = new Rectangle(gp.chest.x+5, gp.chest.y+15,gp.tileSize-10, gp.tileSize-15);
-                if(boxEnemy.intersects(boxObject)){
-                    collision = true;
-                }
-            }
+            //     Rectangle boxObject = new Rectangle(gp.chest.x+5, gp.chest.y+15,gp.tileSize-10, gp.tileSize-15);
+            //     if(boxEnemy.intersects(boxObject)){
+            //         collision = true;
+            //     }
+            // }
 
             if(collision == false){
 

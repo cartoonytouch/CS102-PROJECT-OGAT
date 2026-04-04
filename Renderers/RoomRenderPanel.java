@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class RoomRenderPanel extends JPanel {
     private Room room;
-    private final int TILE_SIZE = 30;
+    private final int TILE_SIZE = 80;
 
     private BufferedImage wallSprite;
     private BufferedImage floorSprite;
@@ -56,7 +56,7 @@ public class RoomRenderPanel extends JPanel {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
         if (room == null) return;

@@ -12,6 +12,7 @@ public class Room {
     public FloorObjects[][] localFloorGrid;
     public RoomObjects[][] localObjectGrid;
     public int[][] localMiniGrid;
+    
 
     // dimensions and the absolute location of 
     // the top left corner on the map grid.
@@ -25,9 +26,11 @@ public class Room {
     boolean isCleared;
     private Random rng;
 
+    public boolean isDiscovered;
+
     // things that need to be rendered
     private List<int[]> occupiedCoords = new ArrayList<>();
-    private List<Enemy> localEnemies = new ArrayList<>();
+    public List<Enemy> localEnemies = new ArrayList<>();
     private List<RoomObjects> placedRoomObjects = new ArrayList<>();
     private List<FloorObjects> placedFloorObjects = new ArrayList<>();
     public List<Door> placedDoors = new ArrayList<>();
@@ -175,9 +178,9 @@ public class Room {
     // spawn enemies
     public void spawnEnemies(int eCoordX, int eCoordY, int type)
     {
-        Enemy newEnemy = new Enemy(eCoordX, eCoordY, type);
-        placedRoomObjects.add(newEnemy);
-        localEnemies.add(newEnemy);
+        //Enemy newEnemy = new Enemy(eCoordX, eCoordY, type);
+        //placedRoomObjects.add(newEnemy);
+        //localEnemies.add(newEnemy);
         int[] coordArray = {eCoordX,eCoordY};
         occupiedCoords.add(coordArray);
     }
