@@ -1,15 +1,24 @@
 
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.io.File;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.awt.Rectangle;;
+import java.awt.Rectangle;
 
+import Map.Room.RoomObjects;
 
 public class Player extends Character {
 
+    GamePanel gp;
+
     KeyHandler keyH;
+
+    public final int screenX;
+    public final int screenY;
+
+    public boolean canStun;
 
     public int mana;
     public int currency;
@@ -72,7 +81,7 @@ public class Player extends Character {
     public BufferedImage[] helmetRight = new BufferedImage[8];
 
     public BufferedImage[] beardUp = new BufferedImage[8];
-    public BufferedImage[] beardDonwn= new BufferedImage[8];
+    public BufferedImage[] beardDownn= new BufferedImage[8];
     public BufferedImage[] beardLeft = new BufferedImage[8];
     public BufferedImage[] beardRight = new BufferedImage[8];
 
@@ -106,6 +115,12 @@ public class Player extends Character {
 
         this.gp = gp;
         this.keyH = keyH;
+        this.mana = gp.tileSize*gp.maxScreenCol;
+
+        solidArea = new Rectangle(10,20,gp.tileSize-20,gp.tileSize-20);
+
+        screenX = gp.screenWidth/2 -(gp.tileSize/2);
+        screenY = gp.screenHeight/2 -(gp.tileSize/2);
 
         setDefault();
         getPlayerImg();
@@ -114,13 +129,14 @@ public class Player extends Character {
 
     public void setDefault(){
 
-        xCoord = 100;
-        yCoord = 100;
+        xCoord = gp.screenWidth/2;
+        yCoord = gp.screenHeight/2;
+
         spped = 4;
         direction = "down";
 
         health = 3;
-        mana = 100;
+        //mana = 100;
         currency = 0;
         inventoryLimit = 5;
 
@@ -131,22 +147,23 @@ public class Player extends Character {
 
     public void getPlayerImg(){
 
+
         try{
 
-            BufferedImage bodySheet = ImageIO.read(getClass().getResourceAsStream("/run/body_sh.png"));
-            BufferedImage pantSheet = ImageIO.read(getClass().getResourceAsStream("/run/pant_sh.png"));
-            BufferedImage headSheet = ImageIO.read(getClass().getResourceAsStream("/run/head_sh.png"));
+            BufferedImage bodySheet = ImageIO.read(new File("Assets/PlayerAssets/run/body_sh.png"));
+            BufferedImage pantSheet = ImageIO.read(new File("Assets/PlayerAssets/run/pant_sh.png"));
+            BufferedImage headSheet = ImageIO.read(new File("Assets/PlayerAssets/run/head_sh.png"));
             //BufferedImage hairSheet = ImageIO.read(getClass().getResourceAsStream("/res/hair_sh.png"));
-            BufferedImage shirtSheet = ImageIO.read(getClass().getResourceAsStream("/run/shirt_sh.png"));
+            BufferedImage shirtSheet = ImageIO.read(new File("Assets/PlayerAssets/run/shirt_sh.png"));
             //BufferedImage boatSheet = ImageIO.read(getClass().getResourceAsStream("/res/boat_sh.png"));
-            BufferedImage helmetSheet = ImageIO.read(getClass().getResourceAsStream("/run/helmet_sh.png"));
+            BufferedImage helmetSheet = ImageIO.read(new File("Assets/PlayerAssets/run/helmet_sh.png"));
             //BufferedImage beardSheet = ImageIO.read(getClass().getResourceAsStream("/res/beard_sh.png"));
 
-            BufferedImage idleBody = ImageIO.read(getClass().getResourceAsStream("/idle/body.png"));
-            BufferedImage idlePant = ImageIO.read(getClass().getResourceAsStream("/idle/pant.png"));
-            BufferedImage idleHead = ImageIO.read(getClass().getResourceAsStream("/idle/head.png"));
-            BufferedImage idleShirt = ImageIO.read(getClass().getResourceAsStream("/idle/shirt.png"));
-            BufferedImage idleHelmet = ImageIO.read(getClass().getResourceAsStream("/idle/helmet.png"));
+            BufferedImage idleBody = ImageIO.read(new File("Assets/PlayerAssets/idle/body.png"));
+            BufferedImage idlePant = ImageIO.read(new File("Assets/PlayerAssets/idle/pant.png"));
+            BufferedImage idleHead = ImageIO.read(new File("Assets/PlayerAssets/idle/head.png"));
+            BufferedImage idleShirt = ImageIO.read(new File("Assets/PlayerAssets/idle/shirt.png"));
+            BufferedImage idleHelmet = ImageIO.read(new File("Assets/PlayerAssets/idle/helmet.png"));
 
 
             int frameWidth = bodySheet.getWidth()/8;
@@ -252,6 +269,8 @@ public class Player extends Character {
         int nextX = xCoord;
         int nextY = yCoord;
 
+
+
         if(keyH.upPressed == true){
             direction = "up";
             nextY -= spped;
@@ -269,9 +288,12 @@ public class Player extends Character {
             nextX += spped;
         }
 
-        Rectangle boxPlayer = new Rectangle(nextX + 10, nextY + 20, gp.tileSize-30, gp.tileSize-15);
+    
+
+        Rectangle boxPlayer = new Rectangle(nextX + 24, nextY + 40, gp.tileSize-48, gp.tileSize-40);
 
         boolean collision = false;
+        boolean touchedDoor = false;
 
 
         if(gp.chest != null && isInvisible == false){
@@ -298,7 +320,53 @@ public class Player extends Character {
             }
         }
 
-        if(collision == false){
+
+        if (gp.currentRoom != null) {
+            int leftCol = boxPlayer.x / gp.tileSize;
+            int rightCol = (boxPlayer.x + boxPlayer.width) / gp.tileSize;
+            int topRow = boxPlayer.y / gp.tileSize;
+            int bottomRow = (boxPlayer.y + boxPlayer.height) / gp.tileSize;
+
+            int maxCol = gp.currentRoom.width - 1;
+            int maxRow = gp.currentRoom.height - 1;
+
+            leftCol = Math.max(0, Math.min(leftCol, maxCol));
+            rightCol = Math.max(0, Math.min(rightCol, maxCol));
+            topRow = Math.max(0, Math.min(topRow, maxRow));
+            bottomRow = Math.max(0, Math.min(bottomRow, maxRow));
+
+            for (int r = topRow; r <= bottomRow; r++) {
+                for (int c = leftCol; c <= rightCol; c++) {
+                    Object obj = gp.currentRoom.localObjectGrid[r][c]; 
+                    if (obj instanceof Map.Room.Wall || obj instanceof Map.Room.Rock) {
+                        collision = true; 
+                    }
+                }
+            }
+
+        }
+
+        if (gp.currentRoom != null && gp.currentRoom.placedDoors != null) {
+            for (Map.Room.Door d : gp.currentRoom.placedDoors) {
+                Rectangle doorRect = new Rectangle(d.coordX * gp.tileSize, d.coordY * gp.tileSize, gp.tileSize, gp.tileSize);
+                
+                if (boxPlayer.intersects(doorRect)) {
+                    touchedDoor = true;
+                    if (d.coordX == gp.currentRoom.width - 1) { 
+                        gp.changeRoom(gp.curGridX + 1, gp.curGridY, "right");
+                    } else if (d.coordX == 0) { 
+                        gp.changeRoom(gp.curGridX - 1, gp.curGridY, "left");
+                    } else if (d.coordY == 0) { 
+                        gp.changeRoom(gp.curGridX, gp.curGridY - 1, "up");
+                    } else if (d.coordY == gp.currentRoom.height - 1) { 
+                        gp.changeRoom(gp.curGridX, gp.curGridY + 1, "down");
+                    }
+                    break; 
+                }
+            }
+        }
+
+        if(collision == false && touchedDoor == false){
             xCoord = nextX;
             yCoord = nextY;
         }
@@ -312,6 +380,18 @@ public class Player extends Character {
             }
         }
         
+        // if (xCoord > gp.screenWidth - gp.tileSize) { // rigth door
+        //     gp.changeRoom(gp.curGridX + 1, gp.curGridY, "right");
+        // }
+        // else if (xCoord < 0) { // left door
+        //     gp.changeRoom(gp.curGridX - 1, gp.curGridY, "left");
+        // }
+        // else if (yCoord < 0) { // up door
+        //     gp.changeRoom(gp.curGridX, gp.curGridY - 1, "up");
+        // }
+        // else if (yCoord > gp.screenHeight - gp.tileSize) { // down door
+        //     gp.changeRoom(gp.curGridX, gp.curGridY + 1, "down");
+        // }
     }
 
     @Override
@@ -354,15 +434,15 @@ public class Player extends Character {
 
     public void interact(){
 
-        int distanceX = Math.abs(xCoord - gp.chest.x);
-        int distanceY = Math.abs(yCoord - gp.chest.y);
+        // int distanceX = Math.abs(xCoord - gp.chest.x);
+        // int distanceY = Math.abs(yCoord - gp.chest.y);
 
-        int reachable = gp.tileSize + 10;
+        // int reachable = gp.tileSize + 10;
 
-        if(distanceX <= reachable && distanceY <= reachable){
+        // if(distanceX <= reachable && distanceY <= reachable){
 
-            gp.chest.Interact();
-        }
+        //     gp.chest.Interact();
+        // }
     }
 
     public void consumeItem(){
@@ -467,6 +547,7 @@ public class Player extends Character {
 
         BufferedImage cBody = null, cHair = null, cShirt = null, cBoat = null, cHelmet = null, cHead = null, cBeard = null, cPant = null;
 
+
         if(isMoving == true){
 
             switch(direction){
@@ -490,7 +571,7 @@ public class Player extends Character {
             cBoat = boatDown[SpriteNum];
             cHelmet = helmetDown[SpriteNum];
             cHead = headDown[SpriteNum];
-            cBeard = beardDonwn[SpriteNum];
+            cBeard = beardDownn[SpriteNum];
             cPant = pantDown[SpriteNum];
             break;
 

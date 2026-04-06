@@ -3,7 +3,6 @@ import javax.swing.JFrame;
 import Map.mapGenerator;
 import Map.Room.Room;
 import Renderers.MapRenderPanel;
-import Renderers.RoomRenderPanel;
 
 public class mainFile {
     public static Room[][] mapGrid;
@@ -11,56 +10,89 @@ public class mainFile {
 
     public static void main(String[] args) {
         
-        System.out.println("Map 1");
+        System.out.println("Map generating");
         mapGenerator gen1 = new mapGenerator(testSeed);
         gen1.generate(12);
         printMapSummary(gen1.getGrid());
 
-        Room testRoom = null;
+        Room startRoom = null;
         Room[][] currentGrid = gen1.getGrid();
 
-        for (int y = 0; y < currentGrid.length; y++)
-        {
-            for (int x = 0; x < currentGrid[y].length; x++)
-            {
-                if (currentGrid[x][y] != null)
-                {
-                    testRoom = currentGrid[x][y];
-                    if (testRoom != null)
-                    {
-                        // render all the rooms
-                        if (testRoom != null)
-                        {
-                            JFrame frame = new JFrame("Room Renderer Test");
-                            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                            frame.setResizable(false);
-                            
-                            RoomRenderPanel panel = new RoomRenderPanel(testRoom);
-                            frame.add(panel);
-                            
-                            frame.pack();
-                            frame.setLocationRelativeTo(null);
-                            frame.setVisible(true);
-                        } 
-                    }
+
+        ///////////// Bu döngüyü alttakiyle değiştirdim start room bulmak için ///////
+
+        for(int row=0; row < currentGrid.length; row++ ){
+
+            for(int col=0; col < currentGrid[row].length; col++){
+                if(currentGrid[row][col] != null && currentGrid[row][col].type.equals("Start")){
+                    startRoom = currentGrid[row][col];
+                    break;
                 }
+
             }
-            
+            if(startRoom != null) break;
         }
+
+        // for (int y = 0; y < currentGrid.length; y++)
+        // {
+        //     for (int x = 0; x < currentGrid[y].length; x++)
+        //     {
+        //         if (currentGrid[x][y] != null)
+        //         {
+        //             testRoom = currentGrid[x][y];
+        //             if (testRoom != null)
+        //             {
+        //                 // render all the rooms
+        //                 if (testRoom != null)
+        //                 {
+        //                     JFrame frame = new JFrame("Room Renderer Test");
+        //                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //                     frame.setResizable(false);
+                            
+        //                     RoomRenderPanel panel = new RoomRenderPanel(testRoom);
+        //                     frame.add(panel);
+                            
+        //                     frame.pack();
+        //                     frame.setLocationRelativeTo(null);
+        //                     frame.setVisible(true);
+        //                 } 
+        //             }
+        //         }
+        //     }
+            
+        // }
 
         // render map
         // useless condition leftover
-        if (testRoom != null) {
-            JFrame frame = new JFrame("Map Renderer Test");
+        if (startRoom != null) {
+            JFrame frame = new JFrame("Cursed Crown");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setResizable(false);
-            
-            MapRenderPanel panel = new MapRenderPanel(currentGrid);
-            frame.add(panel);
+
+            // int startX = 0;
+            // int startY = 0;
+
+            // for(int y=0; y < currentGrid.length; y++){
+            //     for(int x=0; x < currentGrid[y].length; x++){
+            //         if(currentGrid[x][y] == startRoom){
+            //             startX = x;
+            //             startY = y;
+            //         }
+            //     }
+            // }
+            GamePanel gamePanel = new GamePanel(currentGrid, startRoom);  /// burada işte game panel çağırıyorum ////
+
+            // gamePanel.player.xCoord = gamePanel.screenWidth/2 - (gamePanel.tileSize/2);
+            // gamePanel.player.yCoord = gamePanel.screenHeight/2 - (gamePanel.tileSize/2);
+
+            //MapRenderPanel panel = new MapRenderPanel(currentGrid);
+            frame.add(gamePanel);
             
             frame.pack();
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
+
+            gamePanel.startGameThread(); /// bu oyunu çalıştırmak için game panelde yazdığım kod  /////
         } else {
             System.out.println("failed map render");
         }
