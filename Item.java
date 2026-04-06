@@ -10,8 +10,10 @@ public abstract class Item {
     }
     void onPickup()
     {
-        
-        this.player.getInventory().add(this);
+        if (player != null && player.getInventory() != null)
+        {
+            player.getInventory().add(this);
+        }
 
     }
     public Player getPlayer() {

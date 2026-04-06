@@ -1,21 +1,21 @@
 package Renderers;
+
 import javax.swing.JPanel;
 
 import Map.Room.*;
 
-import java.awt.Graphics;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-
 public class RoomRenderPanel extends JPanel {
     private Room room;
-    private final int TILE_SIZE = 114;
+    private final int tileSize;
 
     private BufferedImage wallSprite1;
     private BufferedImage wallSprite2;
@@ -33,18 +33,25 @@ public class RoomRenderPanel extends JPanel {
     private BufferedImage doorSprite;
     private BufferedImage openDoorSprite;
 
-    public RoomRenderPanel(Room activeRoom) {
+    public RoomRenderPanel(Room activeRoom)
+    {
+        this(activeRoom, 80);
+    }
+
+    public RoomRenderPanel(Room activeRoom, int tileSize)
+    {
         this.room = activeRoom;
-        
-        if (this.room != null)
+        this.tileSize = tileSize;
+
+        if (room != null)
         {
-            int pixelWidth = room.width * TILE_SIZE;
-            int pixelHeight = room.height * TILE_SIZE;
+            int pixelWidth = room.width * tileSize;
+            int pixelHeight = room.height * tileSize;
             this.setPreferredSize(new Dimension(pixelWidth, pixelHeight));
         }
+
         try
         {
-            // Modify string parameters to match exact local file paths
             wallSprite1 = ImageIO.read(new File("Assets/RoomAssets/wall1.png"));
             wallSprite2 = ImageIO.read(new File("Assets/RoomAssets/wall2.png"));
             wallSprite3 = ImageIO.read(new File("Assets/RoomAssets/wall3.png"));
@@ -67,142 +74,181 @@ public class RoomRenderPanel extends JPanel {
         }
     }
 
-    public void setActiveRoom(Room newRoom) {
-        this.room = newRoom;
-        if (this.room != null)
+    public void setActiveRoom(Room newRoom)
+    {
+        room = newRoom;
+        if (room != null)
         {
-            this.setPreferredSize(new Dimension(room.width * TILE_SIZE, room.height * TILE_SIZE));
-            this.revalidate(); 
+            this.setPreferredSize(new Dimension(room.width * tileSize, room.height * tileSize));
+            this.revalidate();
         }
         this.repaint();
     }
 
     @Override
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g)
+    {
         super.paintComponent(g);
 
-        if (room == null) return;
+        if (room == null)
+        {
+            return;
+        }
 
-        // layer 1 : floor and pits
         for (int y = 0; y < room.height; y++)
         {
             for (int x = 0; x < room.width; x++)
             {
                 FloorObjects floorID = room.localFloorGrid[y][x];
-                
+
                 if (floorID instanceof Tile)
                 {
-                    Tile tile = (Tile)floorID;
-                    switch(tile.tileType)
+                    Tile tile = (Tile) floorID;
+                    switch (tile.tileType)
                     {
-                        case 1: drawRandomRotatedTile(g, floorSprite1, tile); break;
-                        case 2: drawRandomRotatedTile(g, floorSprite2, tile); break;
-                        case 3: drawRandomRotatedTile(g, floorSprite3, tile); break;
-                        case 4: drawRandomRotatedTile(g, floorSprite4, tile); break;
+                        case 2:
+                            drawRandomRotatedTile(g, floorSprite2, tile);
+                            break;
+                        case 3:
+                            drawRandomRotatedTile(g, floorSprite3, tile);
+                            break;
+                        case 4:
+                            drawRandomRotatedTile(g, floorSprite4, tile);
+                            break;
+                        default:
+                            drawRandomRotatedTile(g, floorSprite1, tile);
+                            break;
                     }
                 }
                 else if (floorID instanceof Pit)
                 {
-                    g.drawImage(pitSprite, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, null); 
+                    drawFallbackImage(g, pitSprite, x, y, Color.BLACK);
                 }
             }
         }
 
-        // layer 2: collidable objects
         for (int y = 0; y < room.height; y++)
         {
             for (int x = 0; x < room.width; x++)
             {
                 RoomObjects objID = room.localObjectGrid[y][x];
-                
+
                 if (objID instanceof Wall)
                 {
-                    Wall wall = (Wall)objID;
-                    switch(wall.type)
+                    Wall wall = (Wall) objID;
+                    switch (wall.type)
                     {
-                        case 1: drawRotatedRoomObj(g, wallSprite1, wall); break;
-                        case 2: drawRotatedRoomObj(g, wallSprite2, wall); break;
-                        case 3: drawRotatedRoomObj(g, wallSprite3, wall); break;
-                        case 4: g.drawImage(wallSprite4, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, null); break;
-                        case 5: g.drawImage(wallSprite5, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, null); break;
-                        case 6: g.drawImage(wallSprite6, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, null); break;
-                        case 7: g.drawImage(wallSprite7, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, null); break;
-
+                        case 2:
+                            drawRotatedRoomObj(g, wallSprite2, wall);
+                            break;
+                        case 3:
+                            drawRotatedRoomObj(g, wallSprite3, wall);
+                            break;
+                        case 4:
+                            drawFallbackImage(g, wallSprite4, x, y, Color.DARK_GRAY);
+                            break;
+                        case 5:
+                            drawFallbackImage(g, wallSprite5, x, y, Color.DARK_GRAY);
+                            break;
+                        case 6:
+                            drawFallbackImage(g, wallSprite6, x, y, Color.DARK_GRAY);
+                            break;
+                        case 7:
+                            drawFallbackImage(g, wallSprite7, x, y, Color.DARK_GRAY);
+                            break;
+                        default:
+                            drawRotatedRoomObj(g, wallSprite1, wall);
+                            break;
                     }
                 }
                 else if (objID instanceof Rock)
                 {
-                    g.drawImage(rockSprite, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, null);
+                    drawFallbackImage(g, rockSprite, x, y, Color.DARK_GRAY);
                 }
             }
         }
 
-        // layer 3: doors
         if (room.placedDoors != null)
         {
-            for (Door d : room.placedDoors)
+            for (Door door : room.placedDoors)
             {
-                if (d.open == false)
+                if (door.open)
                 {
-                    drawRotatedRoomObj(g, doorSprite, d);
+                    drawRotatedRoomObj(g, openDoorSprite, door);
                 }
                 else
                 {
-                    drawRotatedRoomObj(g, openDoorSprite, d);
+                    drawRotatedRoomObj(g, doorSprite, door);
                 }
             }
         }
     }
 
-    private void drawRotatedRoomObj(Graphics g, BufferedImage sprite, RoomObjects obj) {
-        Graphics2D g2d = (Graphics2D) g.create();
-        
-        int x = obj.coordX * TILE_SIZE;
-        int y = obj.coordY * TILE_SIZE;
-        
-        int centerX = x + (TILE_SIZE / 2);
-        int centerY = y + (TILE_SIZE / 2);
-        
-        double angleInRadians = 0;
-        
-        // rotate
-        switch (obj.dir)
-        { 
-            case 'n': angleInRadians = 0; break;
-            case 'e':  angleInRadians = Math.toRadians(90); break;
-            case 's': angleInRadians = Math.toRadians(180); break;
-            case 'w':  angleInRadians = Math.toRadians(270); break;
+    private void drawFallbackImage(Graphics g, BufferedImage sprite, int tileX, int tileY, Color fallbackColor)
+    {
+        if (sprite != null)
+        {
+            g.drawImage(sprite, tileX * tileSize, tileY * tileSize, tileSize, tileSize, null);
         }
-        
-        g2d.rotate(angleInRadians, centerX, centerY);
-        g2d.drawImage(sprite, x, y, TILE_SIZE, TILE_SIZE, null);
-        
-        g2d.dispose(); 
+        else
+        {
+            g.setColor(fallbackColor);
+            g.fillRect(tileX * tileSize, tileY * tileSize, tileSize, tileSize);
+        }
+    }
+
+    private void drawRotatedRoomObj(Graphics g, BufferedImage sprite, RoomObjects obj)
+    {
+        if (sprite == null)
+        {
+            g.setColor(Color.DARK_GRAY);
+            g.fillRect(obj.coordX * tileSize, obj.coordY * tileSize, tileSize, tileSize);
+            return;
+        }
+
+        Graphics2D g2d = (Graphics2D) g.create();
+        int x = obj.coordX * tileSize;
+        int y = obj.coordY * tileSize;
+        int centerX = x + (tileSize / 2);
+        int centerY = y + (tileSize / 2);
+
+        g2d.rotate(rotationFor(obj.dir), centerX, centerY);
+        g2d.drawImage(sprite, x, y, tileSize, tileSize, null);
+        g2d.dispose();
     }
 
     private void drawRandomRotatedTile(Graphics g, BufferedImage sprite, Tile tile)
     {
-        Graphics2D g2d = (Graphics2D) g.create();
-        int x = tile.coordX * TILE_SIZE;
-        int y = tile.coordY * TILE_SIZE;
-        
-        int centerX = x + (TILE_SIZE / 2);
-        int centerY = y + (TILE_SIZE / 2);
-        
-        double angleInRadians = 0;
-
-        // rotate
-        switch (tile.dir)
-        { 
-            case 'n': angleInRadians = 0; break;
-            case 'e':  angleInRadians = Math.toRadians(90); break;
-            case 's': angleInRadians = Math.toRadians(180); break;
-            case 'w':  angleInRadians = Math.toRadians(270); break;
+        if (sprite == null)
+        {
+            g.setColor(Color.LIGHT_GRAY);
+            g.fillRect(tile.coordX * tileSize, tile.coordY * tileSize, tileSize, tileSize);
+            return;
         }
-        
-        g2d.rotate(angleInRadians, centerX, centerY);
-        g2d.drawImage(sprite, x, y, TILE_SIZE, TILE_SIZE, null);
-        
-        g2d.dispose(); 
+
+        Graphics2D g2d = (Graphics2D) g.create();
+        int x = tile.coordX * tileSize;
+        int y = tile.coordY * tileSize;
+        int centerX = x + (tileSize / 2);
+        int centerY = y + (tileSize / 2);
+
+        g2d.rotate(rotationFor(tile.dir), centerX, centerY);
+        g2d.drawImage(sprite, x, y, tileSize, tileSize, null);
+        g2d.dispose();
+    }
+
+    private double rotationFor(char dir)
+    {
+        switch (dir)
+        {
+            case 'e':
+                return Math.toRadians(90);
+            case 's':
+                return Math.toRadians(180);
+            case 'w':
+                return Math.toRadians(270);
+            default:
+                return 0;
+        }
     }
 }

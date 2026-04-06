@@ -19,7 +19,7 @@ public class Room implements Updatable{
 
     // dimensions and the absolute location of 
     // the top left corner on the map grid.
-    final public int width = 15;
+    final public int width = 13;
     final public int height = 9;
     public int gridX;
     public int gridY;

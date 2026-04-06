@@ -50,7 +50,7 @@ public class GamePanel extends JPanel implements Runnable{
 
 
         if(this.currentRoom != null){ //// burdada işte room renderer çağırıp ikisini birleştiriyorum ////
-            this.roomRenderer = new RoomRenderPanel(this.currentRoom);
+            this.roomRenderer = new RoomRenderPanel(this.currentRoom, tileSize);
             this.roomRenderer.setSize(screenWidth,screenHeight);
         }
 

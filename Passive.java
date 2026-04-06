@@ -25,7 +25,6 @@ public class Passive extends Item{
     {
         if(this.getItemID().equals("21"))
         {
-
             p.setSpeed(Math.round(p.getSpeed() * multiplier));
             System.out.println("Speed Up!");
 

@@ -110,6 +110,8 @@ public class Player extends Character {
     public BufferedImage[] idlehelmetLeft = new BufferedImage[3];
     public BufferedImage[] idlehelmetRight = new BufferedImage[3];
 
+    private final Inventory inventory = new Inventory();
+
 
     public Player(GamePanel gp, KeyHandler keyH){
 
@@ -129,8 +131,8 @@ public class Player extends Character {
 
     public void setDefault(){
 
-        xCoord = gp.screenWidth/2;
-        yCoord = gp.screenHeight/2;
+        xCoord = screenX;
+        yCoord = screenY;
 
         spped = 4;
         direction = "down";
@@ -290,7 +292,7 @@ public class Player extends Character {
 
     
 
-        Rectangle boxPlayer = new Rectangle(nextX + 24, nextY + 40, gp.tileSize-48, gp.tileSize-40);
+        Rectangle boxPlayer = createCollisionBox(nextX, nextY);
 
         boolean collision = false;
         boolean touchedDoor = false;
@@ -367,8 +369,8 @@ public class Player extends Character {
         }
 
         if(collision == false && touchedDoor == false){
-            xCoord = nextX;
-            yCoord = nextY;
+            xCoord = clampXToRoom(nextX);
+            yCoord = clampYToRoom(nextY);
         }
 
         if(isInvisible == true){
@@ -447,6 +449,21 @@ public class Player extends Character {
 
     public void consumeItem(){
         System.out.println("Consume!");
+    }
+
+    public Inventory getInventory()
+    {
+        return inventory;
+    }
+
+    public int getSpeed()
+    {
+        return spped;
+    }
+
+    public void setSpeed(int speed)
+    {
+        this.spped = speed;
     }
 
 
@@ -733,6 +750,35 @@ public class Player extends Character {
             }/* */
         }
 
+    }
+
+    private Rectangle createCollisionBox(int proposedX, int proposedY)
+    {
+        return new Rectangle(proposedX + 24, proposedY + 40, gp.tileSize - 48, gp.tileSize - 40);
+    }
+
+    private int clampXToRoom(int proposedX)
+    {
+        if (gp.currentRoom == null)
+        {
+            return proposedX;
+        }
+
+        int minX = -24;
+        int maxX = (gp.currentRoom.width * gp.tileSize) - 24 - (gp.tileSize - 48);
+        return Math.max(minX, Math.min(proposedX, maxX));
+    }
+
+    private int clampYToRoom(int proposedY)
+    {
+        if (gp.currentRoom == null)
+        {
+            return proposedY;
+        }
+
+        int minY = -40;
+        int maxY = (gp.currentRoom.height * gp.tileSize) - 40 - (gp.tileSize - 40);
+        return Math.max(minY, Math.min(proposedY, maxY));
     }
     /*public void draw(Graphics2D g2){
 
