@@ -1,19 +1,26 @@
 package Map.Room;
 import java.util.Random;
 
-import Characters.Enemy;
-import Items.Item;
-import Interfaces.Updatable;
-
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
-public class Room implements Updatable{
+import Entities.Characters.Enemies.Enemy;
+import Entities.Characters.Enemies.LongRangeEnemy;
+import Entities.Characters.Enemies.MeleeEnemy;
+import Entities.FloorObjects;
+import Entities.StaticEntities.Door;
+import Entities.StaticEntities.Pit;
+import Entities.StaticEntities.Rock;
+import Entities.StaticEntities.StaticEntity;
+import Entities.StaticEntities.Tile;
+import Entities.StaticEntities.Wall;
+
+
+public class Room {
     // the grids 
     public FloorObjects[][] localFloorGrid;
-    public RoomObjects[][] localObjectGrid;
+    public StaticEntity[][] localObjectGrid;
     public int[][] localMiniGrid;
     
 
@@ -28,15 +35,13 @@ public class Room implements Updatable{
     public String type;
     boolean isCleared;
     private Random rng;
-    boolean spawnedRewards;
-    boolean doorsOpen;
 
     public boolean isDiscovered;
 
     // things that need to be rendered
     private List<int[]> occupiedCoords = new ArrayList<>();
     public List<Enemy> localEnemies = new ArrayList<>();
-    private List<RoomObjects> placedRoomObjects = new ArrayList<>();
+    private List<StaticEntity> placedRoomObjects = new ArrayList<>();
     private List<FloorObjects> placedFloorObjects = new ArrayList<>();
     public List<Door> placedDoors = new ArrayList<>();
 
@@ -47,22 +52,14 @@ public class Room implements Updatable{
         // initialize the fields of the room 
         type = roomType;
         localFloorGrid = new FloorObjects[height][width];
-        localObjectGrid = new RoomObjects[height][width];
+        localObjectGrid = new StaticEntity[height][width];
         this.gridX = gridX;
         this.gridY = gridY;
         this.rng = sharedRng;
-        spawnedRewards = false;
-
-        if(type.equals("Start") == false)
-        {
-            doorsOpen = false;
-        }
-
         
         // initialize if its cleared or not
         if (type.equals("Start") || type.equals("Shop") || type.equals("Empty"))
         {
-            this.spawnedRewards = true;
             this.isCleared = true;
         }
         else
@@ -82,59 +79,39 @@ public class Room implements Updatable{
         {
             for (int y = 0; y < height; y++)
             {
-                
+                int wallType = randomWallType();
 
-                int randomNum = rng.nextInt(10) + 1;
-                int type = 1;
-                if(randomNum <= 5) type = 1;
-                else if(randomNum <= 8) type = 2;
-                else if(randomNum <= 10) type = 3;
-                // corners
-                if(y == 0 && x == 0)
+                if (y == 0 && x == 0)
                 {
-                    type = 4;
-                    Wall newTopLeftEdgeWall = new Wall(x,y,'n', type);
-                    localObjectGrid[y][x] = newTopLeftEdgeWall;
+                    localObjectGrid[y][x] = new Wall(x, y, 'n', 4);
                 }
-                if(y == 0 && x == width - 1)
+                else if (y == 0 && x == width - 1)
                 {
-                    type = 5;
-                    Wall newTopRightEdgeWall = new Wall(x,y,'n', type);
-                    localObjectGrid[y][x] = newTopRightEdgeWall;
+                    localObjectGrid[y][x] = new Wall(x, y, 'n', 5);
                 }
-                if(y == height - 1 && x == 0)
+                else if (y == height - 1 && x == 0)
                 {
-                    type = 6;
-                    Wall newBottomLeftEdgeWall = new Wall(x,y,'n', type);
-                    localObjectGrid[y][x] = newBottomLeftEdgeWall;
+                    localObjectGrid[y][x] = new Wall(x, y, 'n', 6);
                 }
-                if(y == height - 1 && x == width - 1)
+                else if (y == height - 1 && x == width - 1)
                 {
-                    type = 7;
-                    Wall newBottomRightEdgeWall = new Wall(x,y,'n', type);
-                    localObjectGrid[y][x] = newBottomRightEdgeWall;
+                    localObjectGrid[y][x] = new Wall(x, y, 'n', 7);
                 }
-
-                // sides
-                if(y == 0 && x != 0 && x != width - 1)
+                else if (y == 0)
                 {
-                    Wall newNorthWall = new Wall(x,y,'n', type);
-                    localObjectGrid[y][x] = newNorthWall;
+                    localObjectGrid[y][x] = new Wall(x, y, 'n', wallType);
                 }
-                if(x == width - 1 && y != 0 && y != height - 1)
+                else if (x == width - 1)
                 {
-                    Wall newEastWall = new Wall(x,y,'e', type);
-                    localObjectGrid[y][x] = newEastWall;
+                    localObjectGrid[y][x] = new Wall(x, y, 'e', wallType);
                 }
-                if(y == height - 1 && x != 0 && x != width - 1)
+                else if (y == height - 1)
                 {
-                    Wall newSouthWall = new Wall(x,y,'s', type);
-                    localObjectGrid[y][x] = newSouthWall;
+                    localObjectGrid[y][x] = new Wall(x, y, 's', wallType);
                 }
-                if(x == 0 && y != 0 && y != height - 1)
+                else if (x == 0)
                 {
-                    Wall newWestWall = new Wall(x,y,'w', type);
-                    localObjectGrid[y][x] = newWestWall;
+                    localObjectGrid[y][x] = new Wall(x, y, 'w', wallType);
                 }
             }
         }
@@ -144,7 +121,7 @@ public class Room implements Updatable{
             {
 
                 // place the enemies
-                int enemyCount = rng.nextInt(9);
+                int enemyCount = rng.nextInt(3) + 1;
                 //create a local enemy 
 
                 for (int i = 0; i <= enemyCount; i++)
@@ -170,8 +147,8 @@ public class Room implements Updatable{
             }
 
             // place pits
-            int pitCount = (rng.nextInt(3)) * 2;
-            for (int i = 1; i <= pitCount; i++)
+            int pitCount = rng.nextInt(10);
+            for (int i = 0; i <= pitCount; i++)
             {
                     // coordLists
                     int coordX = rng.nextInt(width - 2) + 1;
@@ -190,7 +167,7 @@ public class Room implements Updatable{
 
             // place rocks
             int rockCount = rng.nextInt(6);
-            for (int i = 1; i <= rockCount; i++)
+            for (int i = 0; i <= rockCount; i++)
             {
                 // coordLists
                 int coordX = rng.nextInt(width - 2) + 1;
@@ -217,16 +194,9 @@ public class Room implements Updatable{
         {
             for (int col = 0; col < localFloorGrid[row].length; col++)
             {
-                int randomNum = rng.nextInt(14) + 1;
-                int type = 1;
-                if(randomNum <= 8) type = 1;
-                else if(randomNum <= 10) type = 2;
-                else if(randomNum <= 13) type = 3;
-                else if(randomNum <= 14) type = 4;
-
                 if (localFloorGrid[row][col] instanceof Pit != true) 
                 {
-                    Tile floorTile = new Tile(col, row, type, rng);
+                    Tile floorTile = new Tile(col, row, randomTileType(), rng);
                     localFloorGrid[row][col] = floorTile;
                     placedFloorObjects.add(floorTile);
                 }
@@ -247,9 +217,8 @@ public class Room implements Updatable{
     // spawn enemies
     public void spawnEnemies(int eCoordX, int eCoordY, int type)
     {
-        //Enemy newEnemy = new Enemy(eCoordX, eCoordY, type);
-        //placedRoomObjects.add(newEnemy);
-        //localEnemies.add(newEnemy);
+        Enemy newEnemy = (type == 0) ? new LongRangeEnemy(eCoordX, eCoordY) : new MeleeEnemy(eCoordX, eCoordY);
+        localEnemies.add(newEnemy);
         int[] coordArray = {eCoordX,eCoordY};
         occupiedCoords.add(coordArray);
     }
@@ -276,7 +245,7 @@ public class Room implements Updatable{
 
         int doorX = -1;
         int doorY = -1;
-        char doorDir = '/';
+        char doorDir = 'n';
 
         if (direction == 0)
         { // north Wall
@@ -308,6 +277,10 @@ public class Room implements Updatable{
 
         // instantiate Door entity for collision/state evaluation
         Door newDoor = new Door(doorX, doorY, doorDir);
+        if (isCleared)
+        {
+            newDoor.openDoor();
+        }
         placedDoors.add(newDoor);
         
         // mark coordinate as occupied
@@ -380,20 +353,10 @@ public class Room implements Updatable{
         if (localEnemies.size() == 0)
         {
             isCleared = true;
-            openAllDoors();
-            if (type.equals("Enemy"))
-            {
-                spawnRewards();
-            }
         }
-    }
-
-    // open all the doors of the room
-    public void openAllDoors()
-    {
-        for(Door door : placedDoors)
+        if (type.equals("Enemy"))
         {
-            door.openDoor();
+            spawnRewards();
         }
     }
 
@@ -420,32 +383,44 @@ public class Room implements Updatable{
         }
     }
 
-    public void addItem(Item item)
+    public void openAllDoors()
     {
-
-    }
-    
-    public void removeItem(Item item)
-    {
-        
-    }
-
-    @Override
-    public void update()
-    {   
-        checkCleared();
-        if(isCleared == true)
+        for (Door door : placedDoors)
         {
-            if(doorsOpen == false)
-            {
-                openAllDoors();
-                doorsOpen = true;
-            }
-            if(spawnedRewards == false)
-            {
-                spawnRewards();
-                spawnedRewards = true;
-            }
+            door.openDoor();
         }
     }
+
+    private int randomWallType()
+    {
+        int randomNum = rng.nextInt(10) + 1;
+
+        if (randomNum <= 5) {
+            return 1;
+        }
+        if (randomNum <= 8) {
+            return 2;
+        }
+        return 3;
+    }
+
+    private int randomTileType()
+    {
+        int randomNum = rng.nextInt(14) + 1;
+
+        if (randomNum <= 8) {
+            return 1;
+        }
+        if (randomNum <= 10) {
+            return 2;
+        }
+        if (randomNum <= 13) {
+            return 3;
+        }
+        return 4;
+    }
+
+    // we will render Tiles first, and then add Pits, and then the RoomObjects
+    // first render placedFloorObjects, and then the placedRoomObjects on top.
+    // to do this, render localFloorGrid firs and then the localObjectGrid.
 }

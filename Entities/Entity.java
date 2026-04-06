@@ -1,8 +1,10 @@
+package Entities;
+
 import java.awt.Rectangle;
 
-import Map.Room.RoomObjects;
+import Interfaces.Updatable;
 
-public abstract class Entity extends RoomObjects {
+public abstract class Entity implements Updatable {
 
     public int xCoord;
     public int yCoord;

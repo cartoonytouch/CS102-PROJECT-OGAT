@@ -1,25 +1,55 @@
+import Items.*;
+import Items.Weapons.*;
+
 public class Inventory {
     
     Item[] items;
 
     Inventory()
     {
-        items = new Item[5];
+        // items = new Item[Player.inventoryLimit];
 
     }
     
     void add(Item item)
     {
-        for (int i = 0; i < items.length; i++)
+        int counter = 0;
+
+        for(Item i : this.getItems())
         {
-            if (items[i] == null)
+            if(i != null)
             {
-                items[i] = item;
-                return;
+                counter++;
             }
         }
+        if(counter >= this.getItems().length - 1)
+        {
+            System.out.println("Inventory Full!");
+            return;
+        }
+        // if(item instanceof Weapon)
+        // {
+        //     if(this.items[0] == null || this.items[1] == null)
+        //     {
+        //         if(this.items[0] == null)
+        //         {
+        //             this.items[0] = item;
+        //         }
+        //         else
+        //         {
+        //             this.items[1] = item;
+        //         }
 
-        System.out.println("Inventory Full!");
+        //     }
+        // }
+        else if(item instanceof Consumable)
+        {
+            this.items[2] = item;
+        }
+        else if(item instanceof Passive)
+        {
+            this.items[3] = item;
+        }
     }
     void remove(Item item){
     

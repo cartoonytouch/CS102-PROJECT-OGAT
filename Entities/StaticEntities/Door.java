@@ -25,16 +25,11 @@ public class Door extends StaticEntity {
     {
         switch (direction)
         {
-            case 0:
-                return 'n';
-            case 1:
-                return 'e';
-            case 2:
-                return 's';
-            case 3:
-                return 'w';
-            default:
-                return 'n';
+            case 0: return 'n';
+            case 1: return 'e';
+            case 2: return 's';
+            case 3: return 'w';
+            default: return 'n';
         }
     }
 }

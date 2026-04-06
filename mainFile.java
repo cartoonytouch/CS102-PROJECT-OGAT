@@ -2,11 +2,11 @@ import javax.swing.JFrame;
 
 import Map.mapGenerator;
 import Map.Room.Room;
-import Renderers.MapRenderPanel;
+import Renderers.DynamicOverlay;
 
 public class mainFile {
     public static Room[][] mapGrid;
-    public static String testSeed = "3";
+    public static String testSeed = "0";
 
     public static void main(String[] args) {
         
@@ -17,9 +17,6 @@ public class mainFile {
 
         Room startRoom = null;
         Room[][] currentGrid = gen1.getGrid();
-
-
-        ///////////// Bu döngüyü alttakiyle değiştirdim start room bulmak için ///////
 
         for(int row=0; row < currentGrid.length; row++ ){
 
@@ -80,7 +77,7 @@ public class mainFile {
             //         }
             //     }
             // }
-            GamePanel gamePanel = new GamePanel(currentGrid, startRoom);  /// burada işte game panel çağırıyorum ////
+            DynamicOverlay gamePanel = new DynamicOverlay(currentGrid, startRoom);
 
             // gamePanel.player.xCoord = gamePanel.screenWidth/2 - (gamePanel.tileSize/2);
             // gamePanel.player.yCoord = gamePanel.screenHeight/2 - (gamePanel.tileSize/2);
@@ -92,7 +89,7 @@ public class mainFile {
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
 
-            gamePanel.startGameThread(); /// bu oyunu çalıştırmak için game panelde yazdığım kod  /////
+            gamePanel.startGameThread();
         } else {
             System.out.println("failed map render");
         }
@@ -118,4 +115,3 @@ public class mainFile {
         return mapGrid;
     }
 }
-

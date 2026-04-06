@@ -1,3 +1,5 @@
+import Entities.Characters.Player;
+
 public class Passive extends Item{
 
     String buffType;
@@ -25,7 +27,8 @@ public class Passive extends Item{
     {
         if(this.getItemID().equals("21"))
         {
-            p.setSpeed(Math.round(p.getSpeed() * multiplier));
+
+            // p.setSpeed(Math.round(p.getSpeed() * multiplier));
             System.out.println("Speed Up!");
 
         }

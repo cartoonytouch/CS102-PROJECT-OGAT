@@ -205,16 +205,4 @@ public class mapGenerator {
     }
 
     public Room[][] getGrid() { return grid; }
-
-    public Room getCurrentRoom(int PCoordX, int PCoordY)
-    {
-        return grid[PCoordX][PCoordY];
-    }
-
-    public Room getStartRoom()
-    {
-        return placedRooms.get(0);
-    }
-
-    
 }

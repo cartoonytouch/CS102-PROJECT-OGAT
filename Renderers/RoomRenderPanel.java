@@ -2,16 +2,24 @@ package Renderers;
 
 import javax.swing.JPanel;
 
-import Map.Room.*;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+import Entities.FloorObjects;
+import Entities.StaticEntities.Door;
+import Entities.StaticEntities.Pit;
+import Entities.StaticEntities.Rock;
+import Entities.StaticEntities.StaticEntity;
+import Entities.StaticEntities.Tile;
+import Entities.StaticEntities.Wall;
+import Map.Room.Room;
 
 public class RoomRenderPanel extends JPanel {
     private Room room;
@@ -40,7 +48,7 @@ public class RoomRenderPanel extends JPanel {
 
     public RoomRenderPanel(Room activeRoom, int tileSize)
     {
-        this.room = activeRoom;
+        room = activeRoom;
         this.tileSize = tileSize;
 
         if (room != null)
@@ -107,16 +115,16 @@ public class RoomRenderPanel extends JPanel {
                     switch (tile.tileType)
                     {
                         case 2:
-                            drawRandomRotatedTile(g, floorSprite2, tile);
+                            drawRotatedTile(g, floorSprite2, tile);
                             break;
                         case 3:
-                            drawRandomRotatedTile(g, floorSprite3, tile);
+                            drawRotatedTile(g, floorSprite3, tile);
                             break;
                         case 4:
-                            drawRandomRotatedTile(g, floorSprite4, tile);
+                            drawRotatedTile(g, floorSprite4, tile);
                             break;
                         default:
-                            drawRandomRotatedTile(g, floorSprite1, tile);
+                            drawRotatedTile(g, floorSprite1, tile);
                             break;
                     }
                 }
@@ -131,7 +139,7 @@ public class RoomRenderPanel extends JPanel {
         {
             for (int x = 0; x < room.width; x++)
             {
-                RoomObjects objID = room.localObjectGrid[y][x];
+                StaticEntity objID = room.localObjectGrid[y][x];
 
                 if (objID instanceof Wall)
                 {
@@ -139,10 +147,10 @@ public class RoomRenderPanel extends JPanel {
                     switch (wall.type)
                     {
                         case 2:
-                            drawRotatedRoomObj(g, wallSprite2, wall);
+                            drawRotatedStaticEntity(g, wallSprite2, wall);
                             break;
                         case 3:
-                            drawRotatedRoomObj(g, wallSprite3, wall);
+                            drawRotatedStaticEntity(g, wallSprite3, wall);
                             break;
                         case 4:
                             drawFallbackImage(g, wallSprite4, x, y, Color.DARK_GRAY);
@@ -157,7 +165,7 @@ public class RoomRenderPanel extends JPanel {
                             drawFallbackImage(g, wallSprite7, x, y, Color.DARK_GRAY);
                             break;
                         default:
-                            drawRotatedRoomObj(g, wallSprite1, wall);
+                            drawRotatedStaticEntity(g, wallSprite1, wall);
                             break;
                     }
                 }
@@ -174,11 +182,11 @@ public class RoomRenderPanel extends JPanel {
             {
                 if (door.open)
                 {
-                    drawRotatedRoomObj(g, openDoorSprite, door);
+                    drawRotatedStaticEntity(g, openDoorSprite, door);
                 }
                 else
                 {
-                    drawRotatedRoomObj(g, doorSprite, door);
+                    drawRotatedStaticEntity(g, doorSprite, door);
                 }
             }
         }
@@ -197,27 +205,27 @@ public class RoomRenderPanel extends JPanel {
         }
     }
 
-    private void drawRotatedRoomObj(Graphics g, BufferedImage sprite, RoomObjects obj)
+    private void drawRotatedStaticEntity(Graphics g, BufferedImage sprite, StaticEntity entity)
     {
         if (sprite == null)
         {
             g.setColor(Color.DARK_GRAY);
-            g.fillRect(obj.coordX * tileSize, obj.coordY * tileSize, tileSize, tileSize);
+            g.fillRect(entity.coordX * tileSize, entity.coordY * tileSize, tileSize, tileSize);
             return;
         }
 
         Graphics2D g2d = (Graphics2D) g.create();
-        int x = obj.coordX * tileSize;
-        int y = obj.coordY * tileSize;
+        int x = entity.coordX * tileSize;
+        int y = entity.coordY * tileSize;
         int centerX = x + (tileSize / 2);
         int centerY = y + (tileSize / 2);
 
-        g2d.rotate(rotationFor(obj.dir), centerX, centerY);
+        g2d.rotate(rotationFor(entity.dir), centerX, centerY);
         g2d.drawImage(sprite, x, y, tileSize, tileSize, null);
         g2d.dispose();
     }
 
-    private void drawRandomRotatedTile(Graphics g, BufferedImage sprite, Tile tile)
+    private void drawRotatedTile(Graphics g, BufferedImage sprite, Tile tile)
     {
         if (sprite == null)
         {

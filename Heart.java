@@ -4,15 +4,16 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
+import Renderers.DynamicOverlay;
 
 public class Heart {
 
-    GamePanel gp;
+    DynamicOverlay overlay;
     BufferedImage heart_full, heart_empty;
 
-    public Heart(GamePanel gp){
+    public Heart(DynamicOverlay overlay){
 
-        this.gp = gp;
+        this.overlay = overlay;
         getHeartImages();
     }
 
@@ -37,32 +38,32 @@ public class Heart {
 
     public void drawPlayerLife(Graphics2D g2){
 
-        int x = gp.tileSize/2;
-        int y = gp.tileSize/2;
+        int x = overlay.tileSize/2;
+        int y = overlay.tileSize/2;
 
-        if(gp.player.health >= 1){
-            g2.drawImage(heart_full, x,y, gp.tileSize , gp.tileSize,null);
+        if(overlay.player.health >= 1){
+            g2.drawImage(heart_full, x,y, overlay.tileSize , overlay.tileSize,null);
         }
         else{
-            g2.drawImage(heart_empty, x,y, gp.tileSize , gp.tileSize,null);
+            g2.drawImage(heart_empty, x,y, overlay.tileSize , overlay.tileSize,null);
         }
 
-        x += gp.tileSize;
+        x += overlay.tileSize;
 
-        if(gp.player.health >= 2){
-            g2.drawImage(heart_full, x,y, gp.tileSize , gp.tileSize,null);
-        }
-        else{
-            g2.drawImage(heart_empty, x,y, gp.tileSize , gp.tileSize,null);
-        }
-
-        x += gp.tileSize;
-
-        if(gp.player.health >= 3){
-            g2.drawImage(heart_full, x,y, gp.tileSize , gp.tileSize,null);
+        if(overlay.player.health >= 2){
+            g2.drawImage(heart_full, x,y, overlay.tileSize , overlay.tileSize,null);
         }
         else{
-            g2.drawImage(heart_empty, x,y, gp.tileSize , gp.tileSize,null);
+            g2.drawImage(heart_empty, x,y, overlay.tileSize , overlay.tileSize,null);
+        }
+
+        x += overlay.tileSize;
+
+        if(overlay.player.health >= 3){
+            g2.drawImage(heart_full, x,y, overlay.tileSize , overlay.tileSize,null);
+        }
+        else{
+            g2.drawImage(heart_empty, x,y, overlay.tileSize , overlay.tileSize,null);
         }
     }
     

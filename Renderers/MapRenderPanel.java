@@ -13,8 +13,8 @@ import java.io.IOException;
 
 public class MapRenderPanel extends JPanel {
     private Room[][] grid;
-    private final int ROOM_WIDTH = 100;
-    private final int ROOM_HEIGHT = 100;
+    private final int ROOM_WIDTH = 80;
+    private final int ROOM_HEIGHT = 80;
 
     private BufferedImage startRoomSprite;
     private BufferedImage emptyRoomSprite;

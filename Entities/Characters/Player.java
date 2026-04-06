@@ -1,17 +1,21 @@
+package Entities.Characters;
 
-import java.io.IOException;
-import javax.imageio.ImageIO;
 import java.io.File;
-
+import java.io.IOException;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 
-import Map.Room.RoomObjects;
+import javax.imageio.ImageIO;
 
-public class Player extends Character {
+import Entities.StaticEntities.Door;
+import Entities.StaticEntities.Rock;
+import Entities.StaticEntities.Wall;
+import HelperClasses.KeyHandler;
+import Items.Item;
+import Renderers.DynamicOverlay;
 
-    GamePanel gp;
+public class Player extends GameCharacter {
 
     KeyHandler keyH;
 
@@ -110,19 +114,16 @@ public class Player extends Character {
     public BufferedImage[] idlehelmetLeft = new BufferedImage[3];
     public BufferedImage[] idlehelmetRight = new BufferedImage[3];
 
-    private final Inventory inventory = new Inventory();
+    public Player(DynamicOverlay overlay, KeyHandler keyH){
 
-
-    public Player(GamePanel gp, KeyHandler keyH){
-
-        this.gp = gp;
+        this.overlay = overlay;
         this.keyH = keyH;
-        this.mana = gp.tileSize*gp.maxScreenCol;
+        this.mana = overlay.tileSize * overlay.maxScreenCol;
 
-        solidArea = new Rectangle(10,20,gp.tileSize-20,gp.tileSize-20);
+        solidArea = new Rectangle(10, 20, overlay.tileSize - 20, overlay.tileSize - 20);
 
-        screenX = gp.screenWidth/2 -(gp.tileSize/2);
-        screenY = gp.screenHeight/2 -(gp.tileSize/2);
+        screenX = overlay.screenWidth / 2 - (overlay.tileSize / 2);
+        screenY = overlay.screenHeight / 2 - (overlay.tileSize / 2);
 
         setDefault();
         getPlayerImg();
@@ -131,8 +132,8 @@ public class Player extends Character {
 
     public void setDefault(){
 
-        xCoord = screenX;
-        yCoord = screenY;
+        xCoord = overlay.screenWidth / 2;
+        yCoord = overlay.screenHeight / 2;
 
         spped = 4;
         direction = "down";
@@ -267,112 +268,137 @@ public class Player extends Character {
 
     @Override
     public void move() {
+        int deltaX = 0;
+        int deltaY = 0;
 
-        int nextX = xCoord;
-        int nextY = yCoord;
+        if (keyH.leftPressed && !keyH.rightPressed) {
+            deltaX -= spped;
+        } else if (keyH.rightPressed && !keyH.leftPressed) {
+            deltaX += spped;
+        }
 
+        if (keyH.upPressed && !keyH.downPressed) {
+            deltaY -= spped;
+        } else if (keyH.downPressed && !keyH.upPressed) {
+            deltaY += spped;
+        }
 
+        if (deltaX == 0 && deltaY == 0) {
+            updateInvisibility();
+            return;
+        }
 
-        if(keyH.upPressed == true){
+        if (deltaY < 0) {
             direction = "up";
-            nextY -= spped;
-        }
-        else if(keyH.downPressed == true){
+        } else if (deltaY > 0) {
             direction = "down";
-            nextY += spped;           
-        }
-        else if(keyH.leftPressed == true){
+        } else if (deltaX < 0) {
             direction = "left";
-            nextX -= spped;
-        }
-        else if(keyH.rightPressed == true){
+        } else if (deltaX > 0) {
             direction = "right";
-            nextX += spped;
         }
 
-    
+        if (deltaX != 0 && deltaY != 0) {
+            double diagonalScale = 1.0 / Math.sqrt(2.0);
+            deltaX = (int) Math.round(deltaX * diagonalScale);
+            deltaY = (int) Math.round(deltaY * diagonalScale);
 
+            if (deltaX == 0) {
+                deltaX = keyH.leftPressed ? -1 : 1;
+            }
+            if (deltaY == 0) {
+                deltaY = keyH.upPressed ? -1 : 1;
+            }
+        }
+
+        boolean changedRoom = false;
+
+        if (deltaX != 0) {
+            changedRoom = attemptMove(deltaX, 0);
+        }
+        if (!changedRoom && deltaY != 0) {
+            attemptMove(0, deltaY);
+        }
+
+        updateInvisibility();
+    }
+
+    private boolean attemptMove(int deltaX, int deltaY)
+    {
+        int nextX = xCoord + deltaX;
+        int nextY = yCoord + deltaY;
         Rectangle boxPlayer = createCollisionBox(nextX, nextY);
 
-        boolean collision = false;
-        boolean touchedDoor = false;
-
-
-        if(gp.chest != null && isInvisible == false){
-
-            Rectangle boxObject = new Rectangle(gp.chest.x, gp.chest.y + 15, gp.tileSize -10, gp.tileSize -15);
-            if(boxPlayer.intersects(boxObject)){
-                collision = true;
-            }
+        if (collidesWithStaticRoomObjects(boxPlayer)) {
+            return false;
         }
 
-        if(gp.enemy1 != null && isInvisible == false) {
+        if (overlay.currentRoom != null && overlay.currentRoom.placedDoors != null) {
+            for (Door d : overlay.currentRoom.placedDoors) {
+                Rectangle doorRect = new Rectangle(d.coordX * overlay.tileSize, d.coordY * overlay.tileSize, overlay.tileSize, overlay.tileSize);
 
-            Rectangle boxEnemy1 = new Rectangle(gp.enemy1.xCoord+10, gp.enemy1.yCoord+20, gp.tileSize-20, gp.tileSize-20);
-            if(boxPlayer.intersects(boxEnemy1)){
-                collision = true;
-            }
-        }
-
-        if(gp.enemy2 != null && isInvisible == false){
-
-            Rectangle boxEnemy2 = new Rectangle(gp.enemy2.xCoord+10, gp.enemy2.yCoord+20, gp.tileSize-20, gp.tileSize-20);
-            if(boxPlayer.intersects(boxEnemy2)){
-                collision = true;
-            }
-        }
-
-
-        if (gp.currentRoom != null) {
-            int leftCol = boxPlayer.x / gp.tileSize;
-            int rightCol = (boxPlayer.x + boxPlayer.width) / gp.tileSize;
-            int topRow = boxPlayer.y / gp.tileSize;
-            int bottomRow = (boxPlayer.y + boxPlayer.height) / gp.tileSize;
-
-            int maxCol = gp.currentRoom.width - 1;
-            int maxRow = gp.currentRoom.height - 1;
-
-            leftCol = Math.max(0, Math.min(leftCol, maxCol));
-            rightCol = Math.max(0, Math.min(rightCol, maxCol));
-            topRow = Math.max(0, Math.min(topRow, maxRow));
-            bottomRow = Math.max(0, Math.min(bottomRow, maxRow));
-
-            for (int r = topRow; r <= bottomRow; r++) {
-                for (int c = leftCol; c <= rightCol; c++) {
-                    Object obj = gp.currentRoom.localObjectGrid[r][c]; 
-                    if (obj instanceof Map.Room.Wall || obj instanceof Map.Room.Rock) {
-                        collision = true; 
-                    }
-                }
-            }
-
-        }
-
-        if (gp.currentRoom != null && gp.currentRoom.placedDoors != null) {
-            for (Map.Room.Door d : gp.currentRoom.placedDoors) {
-                Rectangle doorRect = new Rectangle(d.coordX * gp.tileSize, d.coordY * gp.tileSize, gp.tileSize, gp.tileSize);
-                
                 if (boxPlayer.intersects(doorRect)) {
-                    touchedDoor = true;
-                    if (d.coordX == gp.currentRoom.width - 1) { 
-                        gp.changeRoom(gp.curGridX + 1, gp.curGridY, "right");
-                    } else if (d.coordX == 0) { 
-                        gp.changeRoom(gp.curGridX - 1, gp.curGridY, "left");
-                    } else if (d.coordY == 0) { 
-                        gp.changeRoom(gp.curGridX, gp.curGridY - 1, "up");
-                    } else if (d.coordY == gp.currentRoom.height - 1) { 
-                        gp.changeRoom(gp.curGridX, gp.curGridY + 1, "down");
+                    if (!d.open) {
+                        return false;
                     }
-                    break; 
+
+                    if (d.coordX == overlay.currentRoom.width - 1) {
+                        overlay.changeRoom(overlay.curGridX + 1, overlay.curGridY, "right");
+                    } else if (d.coordX == 0) {
+                        overlay.changeRoom(overlay.curGridX - 1, overlay.curGridY, "left");
+                    } else if (d.coordY == 0) {
+                        overlay.changeRoom(overlay.curGridX, overlay.curGridY - 1, "up");
+                    } else if (d.coordY == overlay.currentRoom.height - 1) {
+                        overlay.changeRoom(overlay.curGridX, overlay.curGridY + 1, "down");
+                    }
+                    return true;
                 }
             }
         }
 
-        if(collision == false && touchedDoor == false){
-            xCoord = clampXToRoom(nextX);
-            yCoord = clampYToRoom(nextY);
+        xCoord = nextX;
+        yCoord = nextY;
+        return false;
+    }
+
+    private Rectangle createCollisionBox(int proposedX, int proposedY)
+    {
+        return new Rectangle(proposedX + 24, proposedY + 40, overlay.tileSize - 48, overlay.tileSize - 40);
+    }
+
+    private boolean collidesWithStaticRoomObjects(Rectangle boxPlayer)
+    {
+        if (overlay.currentRoom == null) {
+            return false;
         }
 
+        int leftCol = boxPlayer.x / overlay.tileSize;
+        int rightCol = (boxPlayer.x + boxPlayer.width) / overlay.tileSize;
+        int topRow = boxPlayer.y / overlay.tileSize;
+        int bottomRow = (boxPlayer.y + boxPlayer.height) / overlay.tileSize;
+
+        int maxCol = overlay.currentRoom.width - 1;
+        int maxRow = overlay.currentRoom.height - 1;
+
+        leftCol = Math.max(0, Math.min(leftCol, maxCol));
+        rightCol = Math.max(0, Math.min(rightCol, maxCol));
+        topRow = Math.max(0, Math.min(topRow, maxRow));
+        bottomRow = Math.max(0, Math.min(bottomRow, maxRow));
+
+        for (int r = topRow; r <= bottomRow; r++) {
+            for (int c = leftCol; c <= rightCol; c++) {
+                Object obj = overlay.currentRoom.localObjectGrid[r][c];
+                if (obj instanceof Wall || obj instanceof Rock) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void updateInvisibility()
+    {
         if(isInvisible == true){
 
             invisibleCounter++;
@@ -381,19 +407,6 @@ public class Player extends Character {
                 invisibleCounter = 0;
             }
         }
-        
-        // if (xCoord > gp.screenWidth - gp.tileSize) { // rigth door
-        //     gp.changeRoom(gp.curGridX + 1, gp.curGridY, "right");
-        // }
-        // else if (xCoord < 0) { // left door
-        //     gp.changeRoom(gp.curGridX - 1, gp.curGridY, "left");
-        // }
-        // else if (yCoord < 0) { // up door
-        //     gp.changeRoom(gp.curGridX, gp.curGridY - 1, "up");
-        // }
-        // else if (yCoord > gp.screenHeight - gp.tileSize) { // down door
-        //     gp.changeRoom(gp.curGridX, gp.curGridY + 1, "down");
-        // }
     }
 
     @Override
@@ -449,21 +462,6 @@ public class Player extends Character {
 
     public void consumeItem(){
         System.out.println("Consume!");
-    }
-
-    public Inventory getInventory()
-    {
-        return inventory;
-    }
-
-    public int getSpeed()
-    {
-        return spped;
-    }
-
-    public void setSpeed(int speed)
-    {
-        this.spped = speed;
     }
 
 
@@ -563,6 +561,8 @@ public class Player extends Character {
     public void draw(Graphics2D g2){
 
         BufferedImage cBody = null, cHair = null, cShirt = null, cBoat = null, cHelmet = null, cHead = null, cBeard = null, cPant = null;
+        int walkFrame = SpriteNum;
+        int idleFrame = SpriteNum % 3;
 
 
         if(isMoving == true){
@@ -570,50 +570,50 @@ public class Player extends Character {
             switch(direction){
         case "up":
 
-            cBody = bodyUp[SpriteNum];
-            cHair = hairUp[SpriteNum];
-            cShirt = shirtUp[SpriteNum];
-            cBoat = boatUp[SpriteNum];
-            cHelmet = helmetUp[SpriteNum];
-            cHead = headUp[SpriteNum];
-            cBeard = beardUp[SpriteNum];
-            cPant = pantUp[SpriteNum];
+            cBody = bodyUp[walkFrame];
+            cHair = hairUp[walkFrame];
+            cShirt = shirtUp[walkFrame];
+            cBoat = boatUp[walkFrame];
+            cHelmet = helmetUp[walkFrame];
+            cHead = headUp[walkFrame];
+            cBeard = beardUp[walkFrame];
+            cPant = pantUp[walkFrame];
             break;
 
         case "down":
 
-            cBody = bodyDown[SpriteNum];
-            cHair = hairDown[SpriteNum];
-            cShirt = shirtDown[SpriteNum];
-            cBoat = boatDown[SpriteNum];
-            cHelmet = helmetDown[SpriteNum];
-            cHead = headDown[SpriteNum];
-            cBeard = beardDownn[SpriteNum];
-            cPant = pantDown[SpriteNum];
+            cBody = bodyDown[walkFrame];
+            cHair = hairDown[walkFrame];
+            cShirt = shirtDown[walkFrame];
+            cBoat = boatDown[walkFrame];
+            cHelmet = helmetDown[walkFrame];
+            cHead = headDown[walkFrame];
+            cBeard = beardDownn[walkFrame];
+            cPant = pantDown[walkFrame];
             break;
 
         case "left":
 
-            cBody = bodyLeft[SpriteNum];
-            cHair = hairLeft[SpriteNum];
-            cShirt = shirtLeft[SpriteNum];
-            cBoat = boatLeft[SpriteNum];
-            cHelmet = helmetLeft[SpriteNum];
-            cHead = headLeft[SpriteNum];
-            cBeard = beardLeft[SpriteNum];
-            cPant = pantLeft[SpriteNum];
+            cBody = bodyLeft[walkFrame];
+            cHair = hairLeft[walkFrame];
+            cShirt = shirtLeft[walkFrame];
+            cBoat = boatLeft[walkFrame];
+            cHelmet = helmetLeft[walkFrame];
+            cHead = headLeft[walkFrame];
+            cBeard = beardLeft[walkFrame];
+            cPant = pantLeft[walkFrame];
             break;
 
         case "right":
 
-            cBody = bodyRight[SpriteNum];
-            cHair = hairRight[SpriteNum];
-            cShirt = shirtRight[SpriteNum];
-            cBoat = boatRight[SpriteNum];
-            cHelmet = helmetRight[SpriteNum];
-            cHead = headRight[SpriteNum];
-            cBeard = beardRight[SpriteNum];
-            cPant = pantRight[SpriteNum];
+            cBody = bodyRight[walkFrame];
+            cHair = hairRight[walkFrame];
+            cShirt = shirtRight[walkFrame];
+            cBoat = boatRight[walkFrame];
+            cHelmet = helmetRight[walkFrame];
+            cHead = headRight[walkFrame];
+            cBeard = beardRight[walkFrame];
+            cPant = pantRight[walkFrame];
             break;
         }
 
@@ -623,50 +623,50 @@ public class Player extends Character {
             switch(direction){
         case "up":
 
-            cBody = idlebodyUp[SpriteNum];
+            cBody = idlebodyUp[idleFrame];
             //cHair = idlehairUp[SpriteNum];
-            cShirt = idleshirtUp[SpriteNum];
+            cShirt = idleshirtUp[idleFrame];
             //cBoat = idleboatUp[SpriteNum];
-            cHelmet = idlehelmetUp[SpriteNum];
-            cHead = idleheadUp[SpriteNum];
+            cHelmet = idlehelmetUp[idleFrame];
+            cHead = idleheadUp[idleFrame];
             //cBeard = idlebeardUp[SpriteNum];
-            cPant = idlepantUp[SpriteNum];
+            cPant = idlepantUp[idleFrame];
             break;
 
         case "down":
 
-            cBody = idlebodyDown[SpriteNum];
+            cBody = idlebodyDown[idleFrame];
             //cHair = hairDown[SpriteNum];
-            cShirt = idleshirtDown[SpriteNum];
+            cShirt = idleshirtDown[idleFrame];
             //cBoat = boatDown[SpriteNum];
-            cHelmet = idlehelmetDown[SpriteNum];
-            cHead = idleheadDown[SpriteNum];
+            cHelmet = idlehelmetDown[idleFrame];
+            cHead = idleheadDown[idleFrame];
             //cBeard = beardDonwn[SpriteNum];
-            cPant = idlepantDown[SpriteNum];
+            cPant = idlepantDown[idleFrame];
             break;
 
         case "left":
 
-            cBody = idlebodyLeft[SpriteNum];
+            cBody = idlebodyLeft[idleFrame];
             //cHair = hairLeft[SpriteNum];
-            cShirt = idleshirtLeft[SpriteNum];
+            cShirt = idleshirtLeft[idleFrame];
             //cBoat = boatLeft[SpriteNum];
-            cHelmet = idlehelmetLeft[SpriteNum];
-            cHead = idleheadLeft[SpriteNum];
+            cHelmet = idlehelmetLeft[idleFrame];
+            cHead = idleheadLeft[idleFrame];
             //cBeard = beardLeft[SpriteNum];
-            cPant = idlepantLeft[SpriteNum];
+            cPant = idlepantLeft[idleFrame];
             break;
 
         case "right":
 
-            cBody = idlebodyRight[SpriteNum];
+            cBody = idlebodyRight[idleFrame];
             //cHair = hairRight[SpriteNum];
-            cShirt = idleshirtRight[SpriteNum];
+            cShirt = idleshirtRight[idleFrame];
             //cBoat = boatRight[SpriteNum];
-            cHelmet = idlehelmetRight[SpriteNum];
-            cHead = idleheadRight[SpriteNum];
+            cHelmet = idlehelmetRight[idleFrame];
+            cHead = idleheadRight[idleFrame];
             //cBeard = beardRight[SpriteNum];
-            cPant = idlepantRight[SpriteNum];
+            cPant = idlepantRight[idleFrame];
             break;
         }
         }
@@ -674,111 +674,82 @@ public class Player extends Character {
         if(direction.equals("up")){
 
             /*if( cWeapon != null){
-                g2.drawImage(cWeapon, x, y, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cWeapon, x, y, overlay.tileSize, overlay.tileSize, null);
 
             }/* */
             if( cBody != null){
-                g2.drawImage(cBody, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cBody, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cHead != null){
-                g2.drawImage(cHead, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cHead, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cHair != null){
-                g2.drawImage(cHair, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cHair, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cBeard != null){
-                g2.drawImage(cBeard, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cBeard, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cShirt != null){
-                g2.drawImage(cShirt, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cShirt, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cPant != null){
-                g2.drawImage(cPant, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cPant, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cBoat != null){
-                g2.drawImage(cBoat, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cBoat, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cHelmet != null){
-                g2.drawImage(cHelmet, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cHelmet, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
         }
         else{
 
             if( cBody != null){
-                g2.drawImage(cBody, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cBody, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cHead != null){
-                g2.drawImage(cHead, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cHead, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cHair != null){
-                g2.drawImage(cHair, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cHair, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cBeard != null){
-                g2.drawImage(cBeard, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cBeard, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cShirt != null){
-                g2.drawImage(cShirt, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cShirt, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cPant != null){
-                g2.drawImage(cPant, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cPant, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cBoat != null){
-                g2.drawImage(cBoat, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cBoat, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             if( cHelmet != null){
-                g2.drawImage(cHelmet, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cHelmet, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
             }
             /*if( cWeapon != null){
-                g2.drawImage(cWeapon, x, y, gp.tileSize, gp.tileSize, null);
+                g2.drawImage(cWeapon, x, y, overlay.tileSize, overlay.tileSize, null);
 
             }/* */
         }
 
-    }
-
-    private Rectangle createCollisionBox(int proposedX, int proposedY)
-    {
-        return new Rectangle(proposedX + 24, proposedY + 40, gp.tileSize - 48, gp.tileSize - 40);
-    }
-
-    private int clampXToRoom(int proposedX)
-    {
-        if (gp.currentRoom == null)
-        {
-            return proposedX;
-        }
-
-        int minX = -24;
-        int maxX = (gp.currentRoom.width * gp.tileSize) - 24 - (gp.tileSize - 48);
-        return Math.max(minX, Math.min(proposedX, maxX));
-    }
-
-    private int clampYToRoom(int proposedY)
-    {
-        if (gp.currentRoom == null)
-        {
-            return proposedY;
-        }
-
-        int minY = -40;
-        int maxY = (gp.currentRoom.height * gp.tileSize) - 40 - (gp.tileSize - 40);
-        return Math.max(minY, Math.min(proposedY, maxY));
     }
     /*public void draw(Graphics2D g2){
 

@@ -1,9 +1,14 @@
-import java.awt.image.BufferedImage;
+package Entities.Characters;
+
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
-public abstract class Character extends Entity {
+import Entities.Entity;
+import Renderers.DynamicOverlay;
 
-    public GamePanel gp;
+public abstract class GameCharacter extends Entity {
+
+    public DynamicOverlay overlay;
 
     public int health;
     public boolean isStunned;
@@ -65,15 +70,9 @@ public abstract class Character extends Entity {
         }
 
         if(img != null){
-            g2.drawImage(img, xCoord, yCoord, gp.tileSize, gp.tileSize, null);
+            g2.drawImage(img, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
 
         }
 
     }
-    public void update() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
-    }
-
-
 }

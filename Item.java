@@ -1,3 +1,4 @@
+import Entities.Characters.Player;
 
 public abstract class Item {
 
@@ -10,10 +11,8 @@ public abstract class Item {
     }
     void onPickup()
     {
-        if (player != null && player.getInventory() != null)
-        {
-            player.getInventory().add(this);
-        }
+        
+        // this.player.getInventory().add(this);
 
     }
     public Player getPlayer() {
