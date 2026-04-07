@@ -1,3 +1,5 @@
+package Menus;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -51,7 +53,7 @@ public class StoryScreen extends Menu {
     private void completeStory() {
         timer.stop();
 
-        //game_engine.start
+        Game.startGame();
     }
 
     @Override

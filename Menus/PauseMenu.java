@@ -1,20 +1,24 @@
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+package Menus;
+
+import Renderers.DynamicOverlay;
 
 public class PauseMenu extends Menu{
 
+    private DynamicOverlay gamePanel;
+
+    // Update constructor to accept the game panel
+    public PauseMenu(DynamicOverlay gamePanel) {
+        this.gamePanel = gamePanel;
+    }
+
+
     @Override
     protected void setButtons() {
-        try {
-            image = ImageIO.read(new File("assets/ui/pausemenu.png"));
-        } 
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        image = loadImage("Assets/MenuAssets/pausemenu.png");
 
         buttons.add(new MenuButton(550, 350, 480, 70, () -> {
-            System.out.println("Continue");
+            gamePanel.resumeGame();
+            Game.switchMenu(gamePanel);
         }));
 
         buttons.add(new MenuButton(550, 480, 480, 70, () -> {

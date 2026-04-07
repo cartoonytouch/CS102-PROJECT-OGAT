@@ -18,6 +18,8 @@ import Entities.Characters.Player;
 import Entities.Characters.Enemies.Enemy;
 import HelperClasses.KeyHandler;
 import Map.Room.Room;
+import Menus.Game;
+import Menus.PauseMenu;
 
 public class DynamicOverlay extends JPanel implements Runnable {
     private static final int MINIMAP_VIEW_RADIUS = 2;
@@ -37,6 +39,13 @@ public class DynamicOverlay extends JPanel implements Runnable {
     public Room[][] mapGrid;
     public int curGridX;
     public int curGridY;
+
+    public enum GameState {
+        RUNNING, PAUSED, GAME_OVER
+    }
+
+    private GameState gameState = GameState.RUNNING;
+    
 
     int FPS = 60;
 
@@ -191,14 +200,30 @@ public class DynamicOverlay extends JPanel implements Runnable {
     }
 
     public void update()
+{
+
+    if (keyH.escPressed) {
+        keyH.escPressed = false; // Reset so it doesn't flicker
+        pauseGame();
+        Game.switchMenu(new PauseMenu(this));
+        return;
+    }
+
+    if (gameState != GameState.RUNNING) return;
+
+    player.update();
+
+    if (currentRoom != null)
     {
         bindCurrentRoomEnemies();
-        player.update();
-        if (currentRoom != null)
+        currentRoom.checkCleared();
+
+        for (Enemy enemy : currentRoom.localEnemies)
         {
-            currentRoom.checkCleared();
+            enemy.update();
         }
     }
+}
 
     public void drawMinimap(Graphics2D g2)
     {
@@ -286,7 +311,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
         g2.dispose();
     }
 
-    private void bindCurrentRoomEnemies()
+    public void bindCurrentRoomEnemies()
     {
         if (currentRoom == null)
         {
@@ -347,5 +372,27 @@ public class DynamicOverlay extends JPanel implements Runnable {
             g2.setColor(new Color(120, 120, 120, 220));
             g2.fillRect(drawX, drawY, size, size);
         }
+    }
+
+    public void pauseGame() {
+        gameState = GameState.PAUSED;
+    }
+
+    public void resumeGame() {
+        gameState = GameState.RUNNING;
+    }
+
+    public void gameOver() {
+        gameState = GameState.GAME_OVER;
+    }
+
+    public void saveGame()
+    {
+        SaveSystem.save(this);
+    }
+
+    public void loadGame()
+    {
+        SaveSystem.load(this);
     }
 }
