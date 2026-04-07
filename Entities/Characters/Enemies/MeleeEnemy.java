@@ -9,10 +9,6 @@ public class MeleeEnemy extends Enemy{
     }
 
     @Override
-    public void calculatePath(int targetX, int targetY) {
-    }
-
-    @Override
     public void takeDamage(int amount) {
         health -= amount;
     }

@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import Entities.StaticEntities.Door;
 import Entities.StaticEntities.Rock;
 import Entities.StaticEntities.Wall;
+import Entities.StaticEntities.Pit;
 import HelperClasses.KeyHandler;
 import Renderers.DynamicOverlay;
 
@@ -349,6 +350,26 @@ public class Player extends GameCharacter {
                 }
             }
         }
+
+        if(overlay.currentRoom != null)
+        {
+            for (Pit pit : overlay.currentRoom.placedPits)
+            {
+                Rectangle pitRectangle = new Rectangle(
+                    (pit.coordX * overlay.tileSize)+(((overlay.tileSize)-(overlay.tileSize/4))/2),
+                    (pit.coordY * overlay.tileSize)+(((overlay.tileSize)-(overlay.tileSize/4))/2)-10,
+                    overlay.tileSize/4,
+                    overlay.tileSize/4
+                );
+
+                if (boxPlayer.intersects(pitRectangle))
+                {
+                    takeDamage(1);
+                    return false;
+                }
+            }
+        }
+
 
         nextX = clampXToRoom(nextX);
         nextY = clampYToRoom(nextY);
@@ -709,11 +730,5 @@ public class Player extends GameCharacter {
         {
             g2.drawImage(layer, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
         }
-    }
-
-    @Override
-    public boolean checkCollision()
-    {
-        return false;
     }
 }

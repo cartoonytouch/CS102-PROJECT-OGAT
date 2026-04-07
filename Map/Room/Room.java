@@ -1,20 +1,21 @@
 package Map.Room;
 import java.util.Random;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import Entities.FloorObjects;
 import Entities.Characters.Enemies.Enemy;
 import Entities.Characters.Enemies.LongRangeEnemy;
 import Entities.Characters.Enemies.MeleeEnemy;
-import Entities.FloorObjects;
+import Entities.Characters.Enemies.Boss;
 import Entities.StaticEntities.Door;
 import Entities.StaticEntities.Pit;
 import Entities.StaticEntities.Rock;
 import Entities.StaticEntities.StaticEntity;
 import Entities.StaticEntities.Tile;
 import Entities.StaticEntities.Wall;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class Room {
@@ -44,6 +45,7 @@ public class Room {
     private List<StaticEntity> placedRoomObjects = new ArrayList<>();
     private List<FloorObjects> placedFloorObjects = new ArrayList<>();
     public List<Door> placedDoors = new ArrayList<>();
+    public List<Pit> placedPits = new ArrayList<>();
 
 
     // room constructor
@@ -184,6 +186,10 @@ public class Room {
                 spawnRocks(coordX, coordY);
             }
         }
+        if (this.type.equals("Boss"))
+        {
+            spawnBoss();
+        }
         spawnTiles();
     }
 
@@ -209,7 +215,7 @@ public class Room {
     {
         Pit newPit = new Pit(pCoordX, pCoordY);
         localFloorGrid[pCoordY][pCoordX] = newPit;
-        placedFloorObjects.add(newPit);
+        placedPits.add(newPit);
         int[] coordArray = {pCoordX, pCoordY};
         occupiedCoords.add(coordArray);
     }
@@ -220,6 +226,15 @@ public class Room {
         Enemy newEnemy = (type == 0) ? new LongRangeEnemy(eCoordX, eCoordY) : new MeleeEnemy(eCoordX, eCoordY);
         localEnemies.add(newEnemy);
         int[] coordArray = {eCoordX,eCoordY};
+        occupiedCoords.add(coordArray);
+    }
+
+    // spawn boss (always spawns in the center so no parameter needed)
+    public void spawnBoss()
+    {
+        Boss boss = new Boss(10, width/2, height/2);
+        localEnemies.add(boss);
+        int[] coordArray = {width/2, height/2};
         occupiedCoords.add(coordArray);
     }
 

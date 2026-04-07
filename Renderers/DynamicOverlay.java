@@ -192,6 +192,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
     public void update()
     {
+        bindCurrentRoomEnemies();
         player.update();
         if (currentRoom != null)
         {

@@ -2,6 +2,14 @@ package Renderers;
 
 import javax.swing.JPanel;
 
+import Entities.FloorObjects;
+import Entities.StaticEntities.Door;
+import Entities.StaticEntities.Pit;
+import Entities.StaticEntities.Rock;
+import Entities.StaticEntities.StaticEntity;
+import Entities.StaticEntities.Tile;
+import Entities.StaticEntities.Wall;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -12,13 +20,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import Entities.FloorObjects;
-import Entities.StaticEntities.Door;
-import Entities.StaticEntities.Pit;
-import Entities.StaticEntities.Rock;
-import Entities.StaticEntities.StaticEntity;
-import Entities.StaticEntities.Tile;
-import Entities.StaticEntities.Wall;
 import Map.Room.Room;
 
 public class RoomRenderPanel extends JPanel {

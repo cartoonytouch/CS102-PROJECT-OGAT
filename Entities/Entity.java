@@ -4,6 +4,8 @@ import java.awt.Rectangle;
 
 import Interfaces.Updatable;
 
+
+
 public abstract class Entity implements Updatable {
 
     public int xCoord;
@@ -11,6 +13,4 @@ public abstract class Entity implements Updatable {
     public int spped;
 
     public Rectangle solidArea;
-
-    public abstract boolean checkCollision();
 }

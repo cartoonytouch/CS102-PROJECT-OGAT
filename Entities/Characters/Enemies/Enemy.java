@@ -64,12 +64,8 @@ public abstract class Enemy extends GameCharacter {
         drawLayer(g2, helmetSprite);
     }
 
-    @Override
-    public boolean checkCollision() {
-        return false;
-    }
 
-    public abstract void calculatePath(int targetX, int targetY);
+    
 
     private void loadPlaceholderSprites()
     {

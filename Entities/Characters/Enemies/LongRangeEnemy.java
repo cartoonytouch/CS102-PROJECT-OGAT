@@ -13,10 +13,6 @@ public class LongRangeEnemy extends Enemy{
     public void takeDamage(int amount) {
         health -= amount;
     }
-
-    @Override
-    public void calculatePath(int targetX, int targetY) {
-    }
     
     @Override
     public void attack() {
