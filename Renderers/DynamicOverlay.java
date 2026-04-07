@@ -38,6 +38,12 @@ public class DynamicOverlay extends JPanel implements Runnable {
     public int curGridX;
     public int curGridY;
 
+    public enum GameState {
+        RUNNING, PAUSED, GAME_OVER
+    }
+
+    private GameState gameState = GameState.RUNNING;
+
     int FPS = 60;
 
     private final KeyHandler keyH = new KeyHandler();
@@ -191,14 +197,22 @@ public class DynamicOverlay extends JPanel implements Runnable {
     }
 
     public void update()
+{
+    if (gameState != GameState.RUNNING) return;
+
+    player.update();
+
+    if (currentRoom != null)
     {
         bindCurrentRoomEnemies();
-        player.update();
-        if (currentRoom != null)
+        currentRoom.checkCleared();
+
+        for (Enemy enemy : currentRoom.localEnemies)
         {
-            currentRoom.checkCleared();
+            enemy.update();
         }
     }
+}
 
     public void drawMinimap(Graphics2D g2)
     {
@@ -347,5 +361,27 @@ public class DynamicOverlay extends JPanel implements Runnable {
             g2.setColor(new Color(120, 120, 120, 220));
             g2.fillRect(drawX, drawY, size, size);
         }
+    }
+
+    public void pauseGame() {
+        gameState = GameState.PAUSED;
+    }
+
+    public void resumeGame() {
+        gameState = GameState.RUNNING;
+    }
+
+    public void gameOver() {
+        gameState = GameState.GAME_OVER;
+    }
+
+    public void saveGame()
+    {
+        SaveSystem.save(this);
+    }
+
+    public void loadGame()
+    {
+        SaveSystem.load(this);
     }
 }
