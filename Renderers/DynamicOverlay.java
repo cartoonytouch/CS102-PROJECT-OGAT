@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Menu;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
@@ -43,6 +44,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
     }
 
     private GameState gameState = GameState.RUNNING;
+    
 
     int FPS = 60;
 
@@ -198,6 +200,14 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
     public void update()
 {
+
+    if (keyH.escPressed) {
+        keyH.escPressed = false; // Reset so it doesn't flicker
+        pauseGame();
+        Game.switchMenu(new PauseMenu(this));
+        return;
+    }
+
     if (gameState != GameState.RUNNING) return;
 
     player.update();
@@ -300,7 +310,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
         g2.dispose();
     }
 
-    private void bindCurrentRoomEnemies()
+    public void bindCurrentRoomEnemies()
     {
         if (currentRoom == null)
         {

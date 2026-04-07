@@ -3,10 +3,13 @@ package HelperClasses;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import Renderers.DynamicOverlay;
+
 public class KeyHandler implements KeyListener{
 
     public boolean upPressed , downPressed , leftPressed , rightPressed, spacePressed;
     public boolean jPressed, kPressed, ePressed, cPressed;
+    public boolean escPressed;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -44,6 +47,9 @@ public class KeyHandler implements KeyListener{
         }
         if(code == KeyEvent.VK_C){
             cPressed = true;
+        }
+        if(code == KeyEvent.VK_ESCAPE){
+            escPressed = true;
         }
 
 

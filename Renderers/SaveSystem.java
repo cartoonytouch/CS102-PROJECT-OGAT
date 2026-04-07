@@ -52,7 +52,7 @@ public class SaveSystem {
 
             game.currentRoom = game.mapGrid[data.gridX][data.gridY];
 
-            //game.bindCurrentRoomEnemies();
+            game.bindCurrentRoomEnemies();
 
             game.roomRenderer.setActiveRoom(game.currentRoom);
 
