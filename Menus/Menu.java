@@ -1,7 +1,13 @@
+package Menus;
+
 import javax.swing.*;
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 abstract class Menu extends JPanel {
@@ -34,6 +40,32 @@ abstract class Menu extends JPanel {
     }
 
     protected abstract void setButtons();
+
+    protected BufferedImage loadImage(String relativePath) {
+        String normalizedPath = relativePath.replace("\\", "/");
+
+        try (InputStream stream = Menu.class.getResourceAsStream("/" + normalizedPath)) {
+            if (stream != null) {
+                return ImageIO.read(stream);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to load image resource: " + normalizedPath);
+            e.printStackTrace();
+        }
+
+        try {
+            File file = new File(normalizedPath);
+            if (file.isFile()) {
+                return ImageIO.read(file);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to load image file: " + normalizedPath);
+            e.printStackTrace();
+        }
+
+        System.err.println("Missing image: " + normalizedPath + " (cwd=" + System.getProperty("user.dir") + ")");
+        return null;
+    }
 
     private void handleClick(Point p) {
         for (MenuButton b : buttons) {

@@ -1,3 +1,5 @@
+package Menus;
+
 import java.awt.Rectangle;
 
 public class MenuButton {

@@ -1,18 +1,12 @@
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
+package Menus;
+
 import java.awt.*;
 
 class NewGameMenu extends Menu {
 
     @Override
     protected void setButtons() {
-        try {
-            image = ImageIO.read(new File("Assets\\MenuAssets\\newgamemenu3.png"));
-        } 
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        image = loadImage("Assets/MenuAssets/newgamemenu3.png");
 
         buttons.add(new MenuButton(140, 390, 480, 50, () -> {
             System.out.println("Easy");

@@ -1,3 +1,5 @@
+package Menus;
+
 import javax.swing.*;
 import Map.mapGenerator;
 import Map.Room.Room;

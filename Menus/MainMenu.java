@@ -1,17 +1,10 @@
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
+package Menus;
 
 public class MainMenu extends Menu{
 
     @Override
     protected void setButtons() {
-        try {
-            image = ImageIO.read(new File("Assets\\MenuAssets\\mainmenu.png"));
-        } 
-        catch (IOException e) {
-            e.printStackTrace();
-        }
+        image = loadImage("Assets/MenuAssets/mainmenu.png");
 
         buttons.add(new MenuButton(550, 390, 480, 70, () -> {
             Game.switchMenu(new MainMenu());

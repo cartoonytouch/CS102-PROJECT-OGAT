@@ -1,5 +1,7 @@
+import Menus.Game;
+
 public class Main {
     public static void main(String[] args) {
-        mainFile.main(args);
+        Game.main(args);
     }
 }

@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Menu;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.image.BufferedImage;
@@ -19,6 +18,8 @@ import Entities.Characters.Player;
 import Entities.Characters.Enemies.Enemy;
 import HelperClasses.KeyHandler;
 import Map.Room.Room;
+import Menus.Game;
+import Menus.PauseMenu;
 
 public class DynamicOverlay extends JPanel implements Runnable {
     private static final int MINIMAP_VIEW_RADIUS = 2;
