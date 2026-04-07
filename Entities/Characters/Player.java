@@ -13,6 +13,10 @@ import Entities.StaticEntities.Rock;
 import Entities.StaticEntities.Wall;
 import Entities.StaticEntities.Pit;
 import HelperClasses.KeyHandler;
+import Items.Inventory;
+import Items.Item;
+import Items.Passive;
+import Items.Weapons.Weapon;
 import Renderers.DynamicOverlay;
 
 public class Player extends GameCharacter {
@@ -47,6 +51,9 @@ public class Player extends GameCharacter {
 
     public boolean isInvisible = false;
     public int invisibleCounter = 0;
+
+    public String appliedPassiveID;
+    public Inventory inventory;
 
     public BufferedImage[] bodyUp = new BufferedImage[8];
     public BufferedImage[] bodyDown = new BufferedImage[8];
@@ -514,6 +521,115 @@ public class Player extends GameCharacter {
     public void consumeItem()
     {
         System.out.println("Consume!");
+    }
+
+    public void removePassiveEffect()
+    {
+        if(appliedPassiveID.equals("21"))
+        {
+            this.health -= 1;
+        }
+        else if(appliedPassiveID.equals("22"))
+        {
+            this.mana -= 20;
+        }
+        else if(appliedPassiveID.equals("23"))
+        {
+            if(this.getInventory().getItems()[0] instanceof Weapon)
+            {
+                Weapon w0 = (Weapon)this.getInventory().getItems()[0];
+                w0.ADbuff = false;
+            }
+
+            if(this.getInventory().getItems()[1] instanceof Weapon)
+            {
+                Weapon w1 = (Weapon)this.getInventory().getItems()[1];
+                w1.ADbuff = false;
+            }
+        }
+        else if(appliedPassiveID.equals("24"))
+        {
+            if(this.getInventory().getItems()[0] instanceof Weapon)
+            {
+                Weapon w0 = (Weapon)this.getInventory().getItems()[0];
+                w0.ASbuff = false;
+            }
+
+            if(this.getInventory().getItems()[1] instanceof Weapon)
+            {
+                Weapon w1 = (Weapon)this.getInventory().getItems()[1];
+                w1.ASbuff = false;
+            }
+        }
+        else if(appliedPassiveID.equals("25"))
+        {
+            this.spped -= 2;
+        }
+
+        appliedPassiveID = "";
+    }
+
+    public void updatePassiveEffect()
+    {
+        Item passiveItem = this.getInventory().getItems()[3];
+        String currentPassiveID = "";
+
+        if(passiveItem instanceof Passive)
+        {
+            currentPassiveID = passiveItem.getItemID();
+        }
+
+        if(!appliedPassiveID.equals(currentPassiveID))
+        {
+            removePassiveEffect();
+
+            if(currentPassiveID.equals("21"))
+            {
+                this.health += 1;
+            }
+            else if(currentPassiveID.equals("22"))
+            {
+                this.mana += 20;
+            }
+            else if(currentPassiveID.equals("23"))
+            {
+                if(this.getInventory().getItems()[0] instanceof Weapon)
+                {
+                    Weapon w0 = (Weapon)this.getInventory().getItems()[0];
+                    w0.ADbuff = true;
+                }
+
+                if(this.getInventory().getItems()[1] instanceof Weapon)
+                {
+                    Weapon w1 = (Weapon)this.getInventory().getItems()[1];
+                    w1.ADbuff = true;
+                }
+            }
+            else if(currentPassiveID.equals("24"))
+            {
+                if(this.getInventory().getItems()[0] instanceof Weapon)
+                {
+                    Weapon w0 = (Weapon)this.getInventory().getItems()[0];
+                    w0.ASbuff = true;
+                }
+
+                if(this.getInventory().getItems()[1] instanceof Weapon)
+                {
+                    Weapon w1 = (Weapon)this.getInventory().getItems()[1];
+                    w1.ASbuff = true;
+                }
+            }
+            else if(currentPassiveID.equals("25"))
+            {
+                this.spped += 2;
+            }
+
+            appliedPassiveID = currentPassiveID;
+        }
+    }
+
+    public Inventory getInventory() {
+        return inventory;
     }
 
     @Override

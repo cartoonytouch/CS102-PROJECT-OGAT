@@ -10,6 +10,9 @@ public abstract class Weapon extends Item {
     private float range;
     private int upgradeLevel;
     private long swingTime;
+    public boolean ASbuff;
+    public boolean ADbuff;
+    public boolean isEquipped;
     KeyEvent event;
     boolean up,down,right,left = false;
 
@@ -33,6 +36,8 @@ public abstract class Weapon extends Item {
         this.attackSpeed = AS;
         this.range = R;
         this.upgradeLevel = 1;
+        this.ADbuff = false;
+        this.ASbuff = false;
 
     }
     void swing()
@@ -52,15 +57,25 @@ public abstract class Weapon extends Item {
 
     }
 
+    public void update()
+    {
+        if(!isEquipped)
+        {
+            ADbuff = false;
+            ASbuff = false;
+        }
+    }
+
     abstract void upgrade();
 
 
+
     public double getAttackDamage() {
-        return attackDamage;
+        return attackDamage + ((ADbuff ? 1 : 0)*10);
     }
 
     public double getAttackSpeed() {
-        return attackSpeed;
+        return attackSpeed + (ASbuff ? 1 : 0);
     }
 
     public double getRange() {
