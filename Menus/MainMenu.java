@@ -7,14 +7,14 @@ public class MainMenu extends Menu{
     @Override
     protected void setButtons() {
         try {
-            image = ImageIO.read(new File("assets/ui/mainmenu.png"));
+            image = ImageIO.read(new File("Assets\\MenuAssets\\mainmenu.png"));
         } 
         catch (IOException e) {
             e.printStackTrace();
         }
 
         buttons.add(new MenuButton(550, 390, 480, 70, () -> {
-            Game.switchMenu(new PauseMenu());
+            Game.switchMenu(new MainMenu());
         }));
 
         buttons.add(new MenuButton(550, 520, 480, 70, () -> {
