@@ -51,7 +51,7 @@ public class StoryScreen extends Menu {
     private void completeStory() {
         timer.stop();
 
-        //game_engine.start
+        Game.startGame();
     }
 
     @Override
