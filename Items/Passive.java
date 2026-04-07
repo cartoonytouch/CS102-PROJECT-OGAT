@@ -27,6 +27,10 @@ public class Passive extends Item{
         {
             this.name = "Speed Passive";
         }
+        else if(id.equals("26"))
+        {
+            
+        }
     }
 }
     

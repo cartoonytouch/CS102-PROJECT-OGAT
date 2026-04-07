@@ -22,6 +22,8 @@ import Renderers.DynamicOverlay;
 public class Player extends GameCharacter {
     KeyHandler keyH;
 
+    public static final int inventoryLimit = 5;
+
     public final int screenX;
     public final int screenY;
 
@@ -29,7 +31,7 @@ public class Player extends GameCharacter {
 
     public int mana;
     public int currency;
-    public int inventoryLimit;
+    
 
     public String playerClass;
     public boolean canParry;
@@ -145,7 +147,6 @@ public class Player extends GameCharacter {
 
         health = 3;
         currency = 0;
-        inventoryLimit = 5;
         canParry = true;
         SpriteNum = 0;
     }
@@ -485,6 +486,7 @@ public class Player extends GameCharacter {
         {
             isAttacking = true;
             System.out.println("Attack!");
+            ((Weapon)this.getInventory().getItems()[0]).swing();
         }
     }
 

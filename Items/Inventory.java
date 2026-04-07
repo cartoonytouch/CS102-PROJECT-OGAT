@@ -1,13 +1,16 @@
 package Items;
 import Items.Weapons.*;
 
+import Entities.Characters.Player;
+
+
 public class Inventory {
     
     Item[] items;
 
-    Inventory()
+    public Inventory()
     {
-        // items = new Item[Player.inventoryLimit];
+        items = new Item[Player.inventoryLimit];
 
     }
     
@@ -27,21 +30,21 @@ public class Inventory {
             System.out.println("Inventory Full!");
             return;
         }
-        // if(item instanceof Weapon)
-        // {
-        //     if(this.items[0] == null || this.items[1] == null)
-        //     {
-        //         if(this.items[0] == null)
-        //         {
-        //             this.items[0] = item;
-        //         }
-        //         else
-        //         {
-        //             this.items[1] = item;
-        //         }
+        if(item instanceof Weapon)
+        {
+            if(this.items[0] == null || this.items[1] == null)
+            {
+                if(this.items[0] == null)
+                {
+                    this.items[0] = item;
+                }
+                else
+                {
+                    this.items[1] = item;
+                }
 
-        //     }
-        // }
+            }
+        }
         else if(item instanceof Consumable)
         {
             this.items[2] = item;
@@ -62,9 +65,8 @@ public class Inventory {
                 return;
             }
         }
-
-
     }
+
     public Item[] getItems() {
         return items;
     }

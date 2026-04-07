@@ -3,7 +3,7 @@ import java.awt.event.*;
 
 import Items.Item;
 
-public abstract class Weapon extends Item {
+public abstract class Weapon extends Item{
     
     private int attackDamage;
     private int attackSpeed;
@@ -29,7 +29,7 @@ public abstract class Weapon extends Item {
     public static final float rangeHigh = 30;
 
 
-    Weapon(int AD, int AS, float R)
+    public Weapon(int AD, int AS, float R)
     {
         
         this.attackDamage = AD;
@@ -40,7 +40,8 @@ public abstract class Weapon extends Item {
         this.ASbuff = false;
 
     }
-    void swing()
+
+    public void swing()
     {
         
         long currentTime = System.currentTimeMillis();
