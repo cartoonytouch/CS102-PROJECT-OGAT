@@ -8,7 +8,7 @@ class NewGameMenu extends Menu {
     @Override
     protected void setButtons() {
         try {
-            image = ImageIO.read(new File("assets/ui/newgamemenu3.png"));
+            image = ImageIO.read(new File("Assets\\MenuAssets\\newgamemenu3.png"));
         } 
         catch (IOException e) {
             e.printStackTrace();
