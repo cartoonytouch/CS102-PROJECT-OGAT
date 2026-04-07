@@ -8,18 +8,27 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import Entities.Characters.Enemies.Enemy;
 import Entities.StaticEntities.Door;
+import Entities.StaticEntities.Pit;
 import Entities.StaticEntities.Rock;
 import Entities.StaticEntities.Wall;
-import Entities.StaticEntities.Pit;
 import HelperClasses.KeyHandler;
+import Items.Consumable;
 import Items.Inventory;
 import Items.Item;
 import Items.Passive;
+import Items.Weapons.Hammer;
+import Items.Weapons.Spear;
+import Items.Weapons.Sword;
 import Items.Weapons.Weapon;
 import Renderers.DynamicOverlay;
 
 public class Player extends GameCharacter {
+    private static final int NORMAL_SPEED = 4;
+    private static final int DASH_SPEED = 12;
+    private static final int SPEED_BUFF = 7;
+
     KeyHandler keyH;
 
     public final int screenX;
@@ -29,7 +38,8 @@ public class Player extends GameCharacter {
 
     public int mana;
     public int currency;
-    public int inventoryLimit;
+    public static int inventoryLimit = 4;
+    public Inventory inventory;
 
     public String playerClass;
     public boolean canParry;
@@ -40,20 +50,28 @@ public class Player extends GameCharacter {
 
     public boolean isAttacking = false;
     public int attackCounter = 0;
+    public boolean damageAppliedForThisAttack = false;
 
     public boolean isParrying = false;
     public int parryCounter = 0;
 
     public boolean isInteracting = false;
     public boolean isConsuming = false;
+    public long consumableStartTime = 0;
+    public long consumableDuration = 0;
+    public boolean isBuffActive = false;
+    public boolean isAttackBuffActive = false;
+    public String buffName = "";
 
     public boolean isMoving = false;
 
     public boolean isInvisible = false;
     public int invisibleCounter = 0;
 
+    public int swapCounter = 0;
+    public boolean isSwapping = false;
+
     public String appliedPassiveID;
-    public Inventory inventory;
 
     public BufferedImage[] bodyUp = new BufferedImage[8];
     public BufferedImage[] bodyDown = new BufferedImage[8];
@@ -122,16 +140,24 @@ public class Player extends GameCharacter {
 
     public Player(DynamicOverlay overlay, KeyHandler keyH)
     {
+        this(overlay, keyH, "Swordsman");
+    }
+
+    public Player(DynamicOverlay overlay, KeyHandler keyH, String playerClass)
+    {
         this.overlay = overlay;
         this.keyH = keyH;
-        mana = overlay.tileSize * overlay.maxScreenCol;
 
         solidArea = buildSolidArea();
 
         screenX = overlay.screenWidth / 2 - (overlay.tileSize / 2);
         screenY = overlay.screenHeight / 2 - (overlay.tileSize / 2);
 
+        this.inventory = new Inventory();
+        this.playerClass = normalizePlayerClass(playerClass);
+
         setDefault();
+        grantStarterLoadout();
         getPlayerImg();
     }
 
@@ -140,14 +166,51 @@ public class Player extends GameCharacter {
         xCoord = screenX;
         yCoord = screenY;
 
-        spped = 4;
+        spped = NORMAL_SPEED;
         direction = "down";
 
         health = 3;
+        mana = 100;
         currency = 0;
-        inventoryLimit = 5;
         canParry = true;
         SpriteNum = 0;
+        appliedPassiveID = "";
+    }
+
+    private String normalizePlayerClass(String playerClass)
+    {
+        if (playerClass == null || playerClass.isBlank())
+        {
+            return "Swordsman";
+        }
+        if (playerClass.equalsIgnoreCase("Lancer"))
+        {
+            return "Spearman";
+        }
+        return playerClass;
+    }
+
+    private void grantStarterLoadout()
+    {
+        if (inventory == null || getChoosenWeapon() != null)
+        {
+            return;
+        }
+
+        if (playerClass.equals("Spearman"))
+        {
+            inventory.add(new Spear());
+        }
+        else if (playerClass.equals("Smasher"))
+        {
+            inventory.add(new Hammer());
+        }
+        else
+        {
+            inventory.add(new Sword());
+        }
+
+        inventory.setChoosedWeaponIndex(0);
     }
 
     public void getPlayerImg()
@@ -358,15 +421,15 @@ public class Player extends GameCharacter {
             }
         }
 
-        if(overlay.currentRoom != null)
+        if (overlay.currentRoom != null)
         {
             for (Pit pit : overlay.currentRoom.placedPits)
             {
                 Rectangle pitRectangle = new Rectangle(
-                    (pit.coordX * overlay.tileSize)+(((overlay.tileSize)-(overlay.tileSize/4))/2),
-                    (pit.coordY * overlay.tileSize)+(((overlay.tileSize)-(overlay.tileSize/4))/2)-10,
-                    overlay.tileSize/4,
-                    overlay.tileSize/4
+                    (pit.coordX * overlay.tileSize) + (((overlay.tileSize) - (overlay.tileSize / 4)) / 2),
+                    (pit.coordY * overlay.tileSize) + (((overlay.tileSize) - (overlay.tileSize / 4)) / 2) - 10,
+                    overlay.tileSize / 4,
+                    overlay.tileSize / 4
                 );
 
                 if (boxPlayer.intersects(pitRectangle))
@@ -376,7 +439,6 @@ public class Player extends GameCharacter {
                 }
             }
         }
-
 
         nextX = clampXToRoom(nextX);
         nextY = clampYToRoom(nextY);
@@ -481,10 +543,108 @@ public class Player extends GameCharacter {
     @Override
     public void attack()
     {
-        if (!isAttacking)
+        Weapon weapon = getChoosenWeapon();
+
+        if (!isAttacking && weapon != null && weapon.canSwing())
         {
+            weapon.swing();
             isAttacking = true;
+            attackCounter = 0;
+            damageAppliedForThisAttack = false;
             System.out.println("Attack!");
+        }
+    }
+
+    private Rectangle createAttackArea()
+    {
+        Weapon weapon = getChoosenWeapon();
+        if (weapon == null)
+        {
+            return null;
+        }
+
+        BufferedImage sprite = weapon.getSprite(direction);
+        if (sprite == null)
+        {
+            return null;
+        }
+
+        int scale = weapon.getVisualScale();
+        int drawWidth = sprite.getWidth() * scale;
+        int drawHeight = sprite.getHeight() * scale;
+        int drawOffset = weapon.getDrawOffset();
+
+        int weaponX = xCoord;
+        int weaponY = yCoord;
+
+        switch (direction)
+        {
+            case "up":
+                weaponY = yCoord - drawHeight + drawOffset;
+                weaponX = xCoord + (overlay.tileSize - drawWidth) / 2;
+                break;
+            case "down":
+                weaponY = yCoord + overlay.tileSize - drawOffset;
+                weaponX = xCoord + (overlay.tileSize - drawWidth) / 2;
+                break;
+            case "left":
+                weaponY = yCoord + (overlay.tileSize - drawHeight) / 2;
+                weaponX = xCoord - drawWidth + drawOffset;
+                break;
+            case "right":
+                weaponY = yCoord + (overlay.tileSize - drawHeight) / 2;
+                weaponX = xCoord + overlay.tileSize - drawOffset;
+                break;
+            default:
+                break;
+        }
+
+        int inset = 8;
+
+        return new Rectangle(
+            weaponX + inset,
+            weaponY + inset,
+            Math.max(1, drawWidth - (inset * 2)),
+            Math.max(1, drawHeight - (inset * 2))
+        );
+    }
+
+    private void checkAttackHit()
+    {
+        if (!isAttacking || damageAppliedForThisAttack || overlay.currentRoom == null)
+        {
+            return;
+        }
+
+        Rectangle attackBox = createAttackArea();
+        Weapon weapon = getChoosenWeapon();
+        if (attackBox == null || weapon == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < overlay.currentRoom.localEnemies.size(); i++)
+        {
+            Enemy enemy = overlay.currentRoom.localEnemies.get(i);
+            Rectangle enemyBox = enemy.getSolidArea();
+
+            if (enemyBox != null && attackBox.intersects(enemyBox))
+            {
+                int attackDamage = weapon.getAttackDamage();
+                if (isAttackBuffActive)
+                {
+                    attackDamage += 10;
+                }
+
+                enemy.takeDamage(attackDamage);
+                damageAppliedForThisAttack = true;
+
+                if (enemy.health <= 0)
+                {
+                    overlay.currentRoom.localEnemies.remove(i);
+                }
+                break;
+            }
         }
     }
 
@@ -500,7 +660,7 @@ public class Player extends GameCharacter {
         {
             isDashing = true;
             mana -= 20;
-            spped = 12;
+            spped = DASH_SPEED;
         }
     }
 
@@ -520,50 +680,76 @@ public class Player extends GameCharacter {
 
     public void consumeItem()
     {
-        System.out.println("Consume!");
+        Item consumableItem = getInventory().getItems()[2];
+        if (!(consumableItem instanceof Consumable))
+        {
+            return;
+        }
+
+        String itemId = consumableItem.getItemID();
+
+        if (itemId.equals("11"))
+        {
+            this.health++;
+            this.getInventory().remove(consumableItem);
+        }
+        else if (itemId.equals("12"))
+        {
+            this.mana = Math.min(this.mana + 20, 100);
+            this.getInventory().remove(consumableItem);
+        }
+        else if (itemId.equals("13"))
+        {
+            buffName = "Attack";
+            consumableStartTime = System.currentTimeMillis();
+            consumableDuration = 3000;
+            isBuffActive = true;
+            isAttackBuffActive = true;
+            this.getInventory().remove(consumableItem);
+        }
+        else if (itemId.equals("14"))
+        {
+            this.health += 2;
+            this.getInventory().remove(consumableItem);
+        }
+        else if (itemId.equals("15"))
+        {
+            buffName = "Speed";
+            spped = SPEED_BUFF;
+            consumableStartTime = System.currentTimeMillis();
+            consumableDuration = 3000;
+            isBuffActive = true;
+            this.getInventory().remove(consumableItem);
+        }
     }
 
     public void removePassiveEffect()
     {
-        if(appliedPassiveID.equals("21"))
+        if (appliedPassiveID == null || appliedPassiveID.isBlank())
+        {
+            appliedPassiveID = "";
+            return;
+        }
+
+        if (appliedPassiveID.equals("21"))
         {
             this.health -= 1;
         }
-        else if(appliedPassiveID.equals("22"))
+        else if (appliedPassiveID.equals("22"))
         {
-            this.mana -= 20;
+            this.mana = Math.max(0, this.mana - 20);
         }
-        else if(appliedPassiveID.equals("23"))
+        else if (appliedPassiveID.equals("23"))
         {
-            if(this.getInventory().getItems()[0] instanceof Weapon)
-            {
-                Weapon w0 = (Weapon)this.getInventory().getItems()[0];
-                w0.ADbuff = false;
-            }
-
-            if(this.getInventory().getItems()[1] instanceof Weapon)
-            {
-                Weapon w1 = (Weapon)this.getInventory().getItems()[1];
-                w1.ADbuff = false;
-            }
+            updateWeaponBuffFlags(false, true);
         }
-        else if(appliedPassiveID.equals("24"))
+        else if (appliedPassiveID.equals("24"))
         {
-            if(this.getInventory().getItems()[0] instanceof Weapon)
-            {
-                Weapon w0 = (Weapon)this.getInventory().getItems()[0];
-                w0.ASbuff = false;
-            }
-
-            if(this.getInventory().getItems()[1] instanceof Weapon)
-            {
-                Weapon w1 = (Weapon)this.getInventory().getItems()[1];
-                w1.ASbuff = false;
-            }
+            updateWeaponBuffFlags(false, false);
         }
-        else if(appliedPassiveID.equals("25"))
+        else if (appliedPassiveID.equals("25"))
         {
-            this.spped -= 2;
+            this.spped = Math.max(NORMAL_SPEED, this.spped - 2);
         }
 
         appliedPassiveID = "";
@@ -571,55 +757,40 @@ public class Player extends GameCharacter {
 
     public void updatePassiveEffect()
     {
+        if (this.getInventory() == null)
+        {
+            return;
+        }
+
         Item passiveItem = this.getInventory().getItems()[3];
         String currentPassiveID = "";
 
-        if(passiveItem instanceof Passive)
+        if (passiveItem instanceof Passive)
         {
             currentPassiveID = passiveItem.getItemID();
         }
 
-        if(!appliedPassiveID.equals(currentPassiveID))
+        if (!appliedPassiveID.equals(currentPassiveID))
         {
             removePassiveEffect();
 
-            if(currentPassiveID.equals("21"))
+            if (currentPassiveID.equals("21"))
             {
                 this.health += 1;
             }
-            else if(currentPassiveID.equals("22"))
+            else if (currentPassiveID.equals("22"))
             {
                 this.mana += 20;
             }
-            else if(currentPassiveID.equals("23"))
+            else if (currentPassiveID.equals("23"))
             {
-                if(this.getInventory().getItems()[0] instanceof Weapon)
-                {
-                    Weapon w0 = (Weapon)this.getInventory().getItems()[0];
-                    w0.ADbuff = true;
-                }
-
-                if(this.getInventory().getItems()[1] instanceof Weapon)
-                {
-                    Weapon w1 = (Weapon)this.getInventory().getItems()[1];
-                    w1.ADbuff = true;
-                }
+                updateWeaponBuffFlags(true, true);
             }
-            else if(currentPassiveID.equals("24"))
+            else if (currentPassiveID.equals("24"))
             {
-                if(this.getInventory().getItems()[0] instanceof Weapon)
-                {
-                    Weapon w0 = (Weapon)this.getInventory().getItems()[0];
-                    w0.ASbuff = true;
-                }
-
-                if(this.getInventory().getItems()[1] instanceof Weapon)
-                {
-                    Weapon w1 = (Weapon)this.getInventory().getItems()[1];
-                    w1.ASbuff = true;
-                }
+                updateWeaponBuffFlags(true, false);
             }
-            else if(currentPassiveID.equals("25"))
+            else if (currentPassiveID.equals("25"))
             {
                 this.spped += 2;
             }
@@ -628,20 +799,61 @@ public class Player extends GameCharacter {
         }
     }
 
-    public Inventory getInventory() {
-        return inventory;
+    private void updateWeaponBuffFlags(boolean enabled, boolean attackBuff)
+    {
+        if (this.getInventory().getItems()[0] instanceof Weapon)
+        {
+            Weapon weapon0 = (Weapon) this.getInventory().getItems()[0];
+            if (attackBuff)
+            {
+                weapon0.ADbuff = enabled;
+            }
+            else
+            {
+                weapon0.ASbuff = enabled;
+            }
+        }
+
+        if (this.getInventory().getItems()[1] instanceof Weapon)
+        {
+            Weapon weapon1 = (Weapon) this.getInventory().getItems()[1];
+            if (attackBuff)
+            {
+                weapon1.ADbuff = enabled;
+            }
+            else
+            {
+                weapon1.ASbuff = enabled;
+            }
+        }
+    }
+
+    public void swapWeapons()
+    {
+        this.getInventory().switchWeapon();
+        isSwapping = true;
+        swapCounter = 0;
+
+        Weapon currentWeapon = getChoosenWeapon();
+        if (currentWeapon != null)
+        {
+            System.out.println("Swap! " + currentWeapon.getName());
+        }
     }
 
     @Override
     public void update()
     {
+        updatePassiveEffect();
+
         if (keyH.spacePressed)
         {
             dash();
         }
-        if (keyH.jPressed)
+        if (keyH.attackPressed)
         {
             attack();
+            keyH.attackPressed = false;
         }
         if (keyH.kPressed)
         {
@@ -666,6 +878,49 @@ public class Player extends GameCharacter {
         {
             isConsuming = false;
         }
+        if (keyH.switchWeaponPressed && !isSwapping)
+        {
+            swapWeapons();
+            keyH.switchWeaponPressed = false;
+        }
+
+        if (isSwapping)
+        {
+            swapCounter++;
+            if (swapCounter > 20)
+            {
+                isSwapping = false;
+                swapCounter = 0;
+            }
+        }
+
+        if (isBuffActive)
+        {
+            long currentTime = System.currentTimeMillis();
+
+            if (currentTime - consumableStartTime >= consumableDuration)
+            {
+                if (buffName.equals("Speed"))
+                {
+                    if (!isDashing)
+                    {
+                        spped = NORMAL_SPEED;
+                        if (appliedPassiveID.equals("25"))
+                        {
+                            spped += 2;
+                        }
+                    }
+                }
+                else if (buffName.equals("Attack"))
+                {
+                    isAttackBuffActive = false;
+                }
+
+                buffName = "";
+                consumableDuration = 0;
+                isBuffActive = false;
+            }
+        }
 
         if (isDashing)
         {
@@ -674,18 +929,54 @@ public class Player extends GameCharacter {
             {
                 isDashing = false;
                 dashCounter = 0;
-                spped = 4;
+                spped = NORMAL_SPEED;
+                if (isBuffActive && buffName.equals("Speed"))
+                {
+                    spped = SPEED_BUFF;
+                }
+                if (appliedPassiveID.equals("25"))
+                {
+                    spped += 2;
+                }
             }
         }
         if (isAttacking)
         {
             attackCounter++;
-            if (attackCounter > 20)
+            isMoving = false;
+
+            Weapon weapon = getChoosenWeapon();
+            if (weapon != null)
+            {
+                if (attackCounter >= weapon.getDamageStartFrame()
+                    && attackCounter <= weapon.getDamageEndFrame())
+                {
+                    checkAttackHit();
+                }
+
+                if (attackCounter > weapon.getAttackDuration())
+                {
+                    isAttacking = false;
+                    attackCounter = 0;
+                    damageAppliedForThisAttack = false;
+                }
+            }
+            else
             {
                 isAttacking = false;
                 attackCounter = 0;
             }
         }
+        else if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed)
+        {
+            isMoving = true;
+            move();
+        }
+        else
+        {
+            isMoving = false;
+        }
+
         if (isParrying)
         {
             parryCounter++;
@@ -694,16 +985,6 @@ public class Player extends GameCharacter {
                 isParrying = false;
                 parryCounter = 0;
             }
-        }
-
-        if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed)
-        {
-            isMoving = true;
-            move();
-        }
-        else
-        {
-            isMoving = false;
         }
 
         spriteCounter++;
@@ -742,6 +1023,7 @@ public class Player extends GameCharacter {
         BufferedImage cHead = null;
         BufferedImage cBeard = null;
         BufferedImage cPant = null;
+        BufferedImage attackAnimation = null;
         int walkFrame = SpriteNum;
         int idleFrame = SpriteNum % 3;
 
@@ -830,6 +1112,16 @@ public class Player extends GameCharacter {
             }
         }
 
+        if (isAttacking && getChoosenWeapon() != null)
+        {
+            attackAnimation = getChoosenWeapon().getSprite(direction);
+        }
+
+        if ("up".equals(direction) && attackAnimation != null)
+        {
+            drawAttackAnimation(g2, attackAnimation);
+        }
+
         drawLayer(g2, cBody);
         drawLayer(g2, cHead);
         drawLayer(g2, cHair);
@@ -838,6 +1130,11 @@ public class Player extends GameCharacter {
         drawLayer(g2, cPant);
         drawLayer(g2, cBoat);
         drawLayer(g2, cHelmet);
+
+        if (!"up".equals(direction) && attackAnimation != null)
+        {
+            drawAttackAnimation(g2, attackAnimation);
+        }
     }
 
     private void drawLayer(Graphics2D g2, BufferedImage layer)
@@ -846,5 +1143,85 @@ public class Player extends GameCharacter {
         {
             g2.drawImage(layer, xCoord, yCoord, overlay.tileSize, overlay.tileSize, null);
         }
+    }
+
+    private void drawAttackAnimation(Graphics2D g2, BufferedImage attackAnimation)
+    {
+        if (attackAnimation == null || getChoosenWeapon() == null)
+        {
+            return;
+        }
+
+        int weaponX = xCoord;
+        int weaponY = yCoord;
+
+        int scale = getChoosenWeapon().getVisualScale();
+        int drawWidth = attackAnimation.getWidth() * scale;
+        int drawHeight = attackAnimation.getHeight() * scale;
+        int drawOffset = getChoosenWeapon().getDrawOffset();
+
+        switch (direction)
+        {
+            case "up":
+                weaponY = yCoord - drawHeight + drawOffset;
+                weaponX = xCoord + (overlay.tileSize - drawWidth) / 2;
+                break;
+            case "down":
+                weaponY = yCoord + overlay.tileSize - drawOffset;
+                weaponX = xCoord + (overlay.tileSize - drawWidth) / 2;
+                break;
+            case "left":
+                weaponY = yCoord + (overlay.tileSize - drawHeight) / 2;
+                weaponX = xCoord - drawWidth + drawOffset;
+                break;
+            case "right":
+                weaponY = yCoord + (overlay.tileSize - drawHeight) / 2;
+                weaponX = xCoord + overlay.tileSize - drawOffset;
+                break;
+            default:
+                break;
+        }
+
+        g2.drawImage(attackAnimation, weaponX, weaponY, drawWidth, drawHeight, null);
+    }
+
+    public Inventory getInventory()
+    {
+        return inventory;
+    }
+
+    public Weapon getChoosenWeapon()
+    {
+        if (inventory == null)
+        {
+            return null;
+        }
+
+        int index = inventory.getChoosedWeaponIndex();
+        Item[] items = inventory.getItems();
+        if (index < 0 || index >= items.length)
+        {
+            return null;
+        }
+        if (!(items[index] instanceof Weapon))
+        {
+            return null;
+        }
+        return (Weapon) items[index];
+    }
+
+    public void changeCurrency(int amount)
+    {
+        this.currency = currency - amount;
+    }
+
+    public int getCurrency()
+    {
+        return currency;
+    }
+
+    public String getPlayerClass()
+    {
+        return playerClass;
     }
 }

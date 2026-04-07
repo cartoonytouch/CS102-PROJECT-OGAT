@@ -3,12 +3,11 @@ package HelperClasses;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import Renderers.DynamicOverlay;
-
 public class KeyHandler implements KeyListener{
 
     public boolean upPressed , downPressed , leftPressed , rightPressed, spacePressed;
-    public boolean jPressed, kPressed, ePressed, cPressed;
+    public boolean jPressed, kPressed, ePressed, cPressed, lPressed;
+    public boolean attackPressed, switchWeaponPressed;
     public boolean escPressed;
 
     @Override
@@ -38,6 +37,7 @@ public class KeyHandler implements KeyListener{
 
         if(code == KeyEvent.VK_J){
             jPressed = true;
+            attackPressed = true;
         }
         if(code == KeyEvent.VK_K){
             kPressed = true;
@@ -47,6 +47,10 @@ public class KeyHandler implements KeyListener{
         }
         if(code == KeyEvent.VK_C){
             cPressed = true;
+        }
+        if(code == KeyEvent.VK_L){
+            lPressed = true;
+            switchWeaponPressed = true;
         }
         if(code == KeyEvent.VK_ESCAPE){
             escPressed = true;
@@ -87,6 +91,9 @@ public class KeyHandler implements KeyListener{
         }
         if(code == KeyEvent.VK_C){
             cPressed = false;
+        }
+        if(code == KeyEvent.VK_L){
+            lPressed = false;
         }
     }
 

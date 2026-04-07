@@ -367,11 +367,16 @@ public class Room {
     {
         if (localEnemies.size() == 0)
         {
-            isCleared = true;
-        }
-        if (type.equals("Enemy"))
-        {
-            spawnRewards();
+            if (!isCleared)
+            {
+                isCleared = true;
+                openAllDoors();
+
+                if (type.equals("Enemy"))
+                {
+                    spawnRewards();
+                }
+            }
         }
     }
 

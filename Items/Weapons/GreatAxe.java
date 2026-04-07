@@ -1,22 +1,19 @@
 package Items.Weapons;
-public class GreatAxe extends Weapon{
 
-    GreatAxe()
+public class GreatAxe extends Weapon {
+
+    public GreatAxe()
     {
-        super(attackDamageHigh, attackSpeedHigh, rangeModerate);
+        super(attackDamageHigh, attackSpeedHigh, rangeModerate, 16, 3);
         this.itemID = "36";
         this.name = "GreatAxe";
+        loadSharedSprite("Assets/ItemAssets/WeaponAssets/GreatAxeBase.png");
     }
-
 
     @Override
-    void upgrade() {
-        
+    public void upgrade()
+    {
         this.setUpgradeLevel();
         this.setAttackDamage(attackDamageHigh + 5);
-        
     }
-
-
-    
 }

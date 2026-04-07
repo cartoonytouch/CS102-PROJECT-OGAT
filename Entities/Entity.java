@@ -13,4 +13,19 @@ public abstract class Entity implements Updatable {
     public int spped;
 
     public Rectangle solidArea;
+
+    public Rectangle getSolidArea()
+    {
+        if (solidArea == null)
+        {
+            return null;
+        }
+
+        return new Rectangle(
+            xCoord + solidArea.x,
+            yCoord + solidArea.y,
+            solidArea.width,
+            solidArea.height
+        );
+    }
 }

@@ -1,20 +1,19 @@
 package Items.Weapons;
-public class Longsword extends Weapon{
-    
-    Longsword()
+
+public class Longsword extends Weapon {
+
+    public Longsword()
     {
-        super(attackDamageModerate,attackSpeedHigh,rangeHigh);
+        super(attackDamageModerate, attackSpeedHigh, rangeHigh, 14, 3);
         this.itemID = "34";
         this.name = "Longsword";
-
+        loadSharedSprite("Assets/ItemAssets/WeaponAssets/LongswordBase.png");
     }
 
-
     @Override
-    void upgrade() {
-
+    public void upgrade()
+    {
         this.setUpgradeLevel();
         this.setAttackDamage(attackDamageModerate + 5);
-
     }
 }

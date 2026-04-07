@@ -1,6 +1,7 @@
 package Entities.Characters.Enemies;
 
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,12 @@ public abstract class Enemy extends GameCharacter {
         this.overlay = overlay;
         this.xCoord = spawnGridX * overlay.tileSize;
         this.yCoord = spawnGridY * overlay.tileSize;
+        this.solidArea = new Rectangle(
+            overlay.tileSize / 4,
+            overlay.tileSize / 3,
+            overlay.tileSize / 2,
+            overlay.tileSize / 2
+        );
     }
 
     @Override

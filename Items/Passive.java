@@ -1,35 +1,30 @@
 package Items;
 
-
-public class Passive extends Item{
+public class Passive extends Item {
 
     public Passive(String id)
     {
         this.itemID = id;
 
-        if(id.equals("21"))
+        if (id.equals("21"))
         {
             this.name = "Health Passive";
         }
-        else if(id.equals("22"))
+        else if (id.equals("22"))
         {
             this.name = "Mana Passive";
         }
-        else if(id.equals("23"))
+        else if (id.equals("23"))
         {
             this.name = "Strength Passive";
         }
-        else if(id.equals("24"))
+        else if (id.equals("24"))
         {
             this.name = "Haste Passive";
         }
-        else if(id.equals("25"))
+        else if (id.equals("25"))
         {
             this.name = "Speed Passive";
         }
     }
 }
-    
-
-    
-

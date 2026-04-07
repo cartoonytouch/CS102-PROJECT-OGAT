@@ -1,25 +1,19 @@
 package Items.Weapons;
-public class Hammer extends Weapon{
-    
-    
 
-    Hammer()
+public class Hammer extends Weapon {
+
+    public Hammer()
     {
-        super(attackDamageHigh, attackSpeedModerate, rangeLow);
+        super(attackDamageHigh, attackSpeedModerate, rangeLow, 20, 3);
         this.itemID = "33";
         this.name = "Hammer";
-        
-
+        loadSharedSprite("Assets/ItemAssets/WeaponAssets/HammerBase.png");
     }
-
-
 
     @Override
-    void upgrade() {
-        
+    public void upgrade()
+    {
         this.setUpgradeLevel();
         this.setAttackDamage(attackDamageHigh + 5);
-        
     }
-    
 }

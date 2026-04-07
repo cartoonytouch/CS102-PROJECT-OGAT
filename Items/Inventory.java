@@ -1,73 +1,167 @@
 package Items;
-import Items.Weapons.*;
+
+import Entities.Characters.Player;
+import Items.Weapons.Weapon;
 
 public class Inventory {
-    
-    Item[] items;
 
-    Inventory()
+    private int choosedWeaponIndex;
+    private final Item[] items;
+
+    public Inventory()
     {
-        // items = new Item[Player.inventoryLimit];
-
+        items = new Item[Player.inventoryLimit];
     }
-    
-    void add(Item item)
-    {
-        int counter = 0;
 
-        for(Item i : this.getItems())
+    public void add(Item item)
+    {
+        if (item == null)
         {
-            if(i != null)
-            {
-                counter++;
-            }
-        }
-        if(counter >= this.getItems().length - 1)
-        {
-            System.out.println("Inventory Full!");
             return;
         }
-        // if(item instanceof Weapon)
-        // {
-        //     if(this.items[0] == null || this.items[1] == null)
-        //     {
-        //         if(this.items[0] == null)
-        //         {
-        //             this.items[0] = item;
-        //         }
-        //         else
-        //         {
-        //             this.items[1] = item;
-        //         }
 
-        //     }
-        // }
-        else if(item instanceof Consumable)
+        if (item instanceof Weapon)
         {
-            this.items[2] = item;
-        }
-        else if(item instanceof Passive)
-        {
-            this.items[3] = item;
-        }
-    }
-    void remove(Item item){
-    
-
-        for(int i = 0; i < this.items.length; i++)
-        {
-            if(this.items[i].equals(item))
+            if (items[0] == null)
             {
-                items[i] = null;
+                items[0] = item;
+            }
+            else if (items[1] == null)
+            {
+                items[1] = item;
+            }
+            else
+            {
+                System.out.println("Inventory Full!");
+            }
+            return;
+        }
+
+        if (item instanceof Consumable)
+        {
+            if (items[2] == null)
+            {
+                items[2] = item;
+            }
+            else
+            {
+                System.out.println("Consumable slot occupied!");
+            }
+            return;
+        }
+
+        if (item instanceof Passive)
+        {
+            if (items[3] == null)
+            {
+                items[3] = item;
+            }
+            else
+            {
+                System.out.println("Passive slot occupied!");
+            }
+            return;
+        }
+
+        for (int i = 0; i < items.length; i++)
+        {
+            if (items[i] == null)
+            {
+                items[i] = item;
                 return;
             }
         }
 
-
+        System.out.println("Inventory Full!");
     }
-    public Item[] getItems() {
+
+    public boolean canAdd(Item item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        if (item instanceof Weapon)
+        {
+            return items[0] == null || items[1] == null;
+        }
+
+        if (item instanceof Consumable)
+        {
+            return items[2] == null;
+        }
+
+        if (item instanceof Passive)
+        {
+            return items[3] == null;
+        }
+
+        for (Item inventoryItem : items)
+        {
+            if (inventoryItem == null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void remove(Item item)
+    {
+        for (int i = 0; i < items.length; i++)
+        {
+            if (items[i] == item)
+            {
+                items[i] = null;
+                if (choosedWeaponIndex == i)
+                {
+                    if (items[0] instanceof Weapon)
+                    {
+                        choosedWeaponIndex = 0;
+                    }
+                    else if (items[1] instanceof Weapon)
+                    {
+                        choosedWeaponIndex = 1;
+                    }
+                    else
+                    {
+                        choosedWeaponIndex = 0;
+                    }
+                }
+                return;
+            }
+        }
+    }
+
+    public Item[] getItems()
+    {
         return items;
     }
+
+    public int getChoosedWeaponIndex()
+    {
+        return choosedWeaponIndex;
+    }
+
+    public void setChoosedWeaponIndex(int choosedWeaponIndex)
+    {
+        if (choosedWeaponIndex >= 0 && choosedWeaponIndex <= 1)
+        {
+            this.choosedWeaponIndex = choosedWeaponIndex;
+        }
+    }
+
+    public void switchWeapon()
+    {
+        if (choosedWeaponIndex == 0 && items[1] instanceof Weapon)
+        {
+            choosedWeaponIndex = 1;
+        }
+        else if (choosedWeaponIndex == 1 && items[0] instanceof Weapon)
+        {
+            choosedWeaponIndex = 0;
+        }
+    }
 }
-
-

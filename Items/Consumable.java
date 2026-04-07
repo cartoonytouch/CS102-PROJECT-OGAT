@@ -2,46 +2,29 @@ package Items;
 
 public class Consumable extends Item {
 
-    int restoreAmount;
-    String type;
-
-    Consumable(String type)
+    public Consumable(String id)
     {
-        this.type = type;
+        this.itemID = id;
 
-        if(type.equals("Health"))
+        if (id.equals("11"))
         {
-            this.name = "Health Potion";
-            this.itemID = "11";
-            this.restoreAmount = 1;
+            this.name = "Health Consumable";
         }
-        else if(type.equals("Mana"))
+        else if (id.equals("12"))
         {
-            this.name = "Mana Potion";
-            this.itemID = "12";
-            this.restoreAmount = 20;
+            this.name = "Mana Consumable";
         }
-
+        else if (id.equals("13"))
+        {
+            this.name = "Attack Consumable";
+        }
+        else if (id.equals("14"))
+        {
+            this.name = "Health Regeneration Consumable";
+        }
+        else if (id.equals("15"))
+        {
+            this.name = "Speed Consumable";
+        }
     }
-    public int getRestoreAmount() {
-        return restoreAmount;
-    }
-    public String getType() {
-        return type;
-    }
-    // @Override
-    // public boolean equals(Object obj) {
-    //     // TODO Auto-generated method stub
-    //     return super.equals(obj);
-    // }
-    // public static void main(String[] args) {
-        
-    //     Consumable c = new Consumable("Health");
-    //     System.out.println(c.getName());
-    //     System.out.println(c.getType());
-    //     System.out.println(c.getItemID());
-    //     System.out.println(c.getRestoreAmount());
-    // }
-    
-    
 }
