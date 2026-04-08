@@ -478,9 +478,28 @@ public class Room {
         return rewardDrop;
     }
 
+    public void setRewardDrop(RewardDrop rewardDrop)
+    {
+        this.rewardDrop = rewardDrop;
+    }
+
     public void clearRewardDrop()
     {
         rewardDrop = null;
+    }
+
+    public boolean isCleared()
+    {
+        return isCleared;
+    }
+
+    public void setCleared(boolean cleared)
+    {
+        this.isCleared = cleared;
+        if (cleared)
+        {
+            openAllDoors();
+        }
     }
 
     public boolean isValidRewardSpawn(int coordX, int coordY)

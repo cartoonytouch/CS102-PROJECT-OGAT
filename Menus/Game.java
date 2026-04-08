@@ -7,6 +7,8 @@ import Map.mapGenerator;
 import Map.Room.Room;
 import Renderers.DynamicOverlay;
 import Renderers.MenuBridge;
+import Renderers.GameData;
+import Renderers.SaveSystem;
 
 public class Game {
 
@@ -37,8 +39,65 @@ public class Game {
     }
 
     public static void startGame() {
+        SaveSystem.clearSave();
+        launchFreshRun(testSeed, selectedPlayerClass);
+    }
+
+    public static void continueGame()
+    {
+        if (!SaveSystem.hasSaveFile())
+        {
+            JOptionPane.showMessageDialog(frame, "No saved game was found.");
+            return;
+        }
+
+        GameData saveData = SaveSystem.readSaveData();
+        if (saveData == null)
+        {
+            JOptionPane.showMessageDialog(frame, "The save file could not be loaded.");
+            return;
+        }
+
+        String savedSeed = normalizeSeed(saveData.mapSeed);
+        String savedClass = (saveData.playerClass == null || saveData.playerClass.isBlank())
+            ? selectedPlayerClass
+            : saveData.playerClass;
+
+        testSeed = savedSeed;
+        selectedPlayerClass = savedClass;
+
+        DynamicOverlay gamePanel = buildGamePanel(savedSeed, savedClass);
+        if (gamePanel == null)
+        {
+            JOptionPane.showMessageDialog(frame, "Failed to build the saved map.");
+            return;
+        }
+
+        gamePanel.loadGame();
+        switchMenu(gamePanel);
+        gamePanel.startGameThread();
+    }
+
+    private static void launchFreshRun(String seed, String playerClass)
+    {
+        testSeed = normalizeSeed(seed);
+        selectedPlayerClass = (playerClass == null || playerClass.isBlank()) ? "Swordsman" : playerClass;
+
+        DynamicOverlay gamePanel = buildGamePanel(testSeed, selectedPlayerClass);
+        if (gamePanel == null)
+        {
+            System.err.println("Failed map render: No start room found.");
+            return;
+        }
+
+        switchMenu(gamePanel);
+        gamePanel.startGameThread();
+    }
+
+    private static DynamicOverlay buildGamePanel(String seed, String playerClass)
+    {
         System.out.println("Generating map...");
-        mapGenerator gen1 = new mapGenerator(testSeed);
+        mapGenerator gen1 = new mapGenerator(seed);
         gen1.generate(12);
         mapGrid = gen1.getGrid();
         
@@ -58,14 +117,10 @@ public class Game {
         }
 
         if (startRoom != null) {
-            DynamicOverlay gamePanel = new DynamicOverlay(mapGrid, startRoom, testSeed, selectedPlayerClass);
-            
-            switchMenu(gamePanel);
-            
-            gamePanel.startGameThread();
-        } else {
-            System.err.println("Failed map render: No start room found.");
+            return new DynamicOverlay(mapGrid, startRoom, seed, playerClass);
         }
+
+        return null;
     }
 
     public static void printMapSummary(Room[][] grid) {

@@ -1,5 +1,7 @@
 package Menus;
 
+import Renderers.SaveSystem;
+
 public class MainMenu extends Menu{
 
     @Override
@@ -7,7 +9,10 @@ public class MainMenu extends Menu{
         image = loadImage("Assets/MenuAssets/mainmenu.png");
 
         buttons.add(new MenuButton(550, 390, 480, 70, () -> {
-            Game.switchMenu(new MainMenu());
+            if (SaveSystem.hasSaveFile())
+            {
+                Game.continueGame();
+            }
         }));
 
         buttons.add(new MenuButton(550, 520, 480, 70, () -> {

@@ -539,6 +539,11 @@ public void update()
         SaveSystem.load(this);
     }
 
+    public String getMapSeed()
+    {
+        return mapSeed;
+    }
+
     public void openStationMenu(Station station)
     {
         if (station == null)

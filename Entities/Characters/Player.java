@@ -1474,6 +1474,29 @@ public class Player extends GameCharacter {
         return new ArrayList<>(discoveredItemIds);
     }
 
+    public void restoreDiscoveredItemIds(String[] itemIds)
+    {
+        discoveredItemIds.clear();
+        discoveredItemIds.addAll(ItemCatalog.getDefaultShopPool());
+
+        if (itemIds == null)
+        {
+            return;
+        }
+
+        for (String itemId : itemIds)
+        {
+            discoverItemId(itemId);
+        }
+    }
+
+    public void refreshInventoryState()
+    {
+        appliedPassiveID = "";
+        updatePassiveEffect();
+        syncEquippedWeapons();
+    }
+
     private void syncEquippedWeapons()
     {
         if (inventory == null)

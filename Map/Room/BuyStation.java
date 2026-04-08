@@ -91,6 +91,61 @@ public class BuyStation extends Station {
         return offerItems.size();
     }
 
+    public boolean hasGeneratedOffers()
+    {
+        return offersGenerated;
+    }
+
+    public String[] getOfferItemIds()
+    {
+        String[] itemIds = new String[offerItems.size()];
+        for (int i = 0; i < offerItems.size(); i++)
+        {
+            Item item = offerItems.get(i);
+            itemIds[i] = (item != null) ? item.getItemID() : null;
+        }
+        return itemIds;
+    }
+
+    public int[] getOfferPrices()
+    {
+        int[] prices = new int[offerPrices.size()];
+        for (int i = 0; i < offerPrices.size(); i++)
+        {
+            prices[i] = offerPrices.get(i);
+        }
+        return prices;
+    }
+
+    public void restoreOffers(String[] itemIds, int[] prices)
+    {
+        offerItems.clear();
+        offerPrices.clear();
+
+        if (itemIds != null)
+        {
+            for (String itemId : itemIds)
+            {
+                offerItems.add(itemId != null ? ItemCatalog.createItem(itemId) : null);
+            }
+        }
+
+        if (prices != null)
+        {
+            for (int price : prices)
+            {
+                offerPrices.add(price);
+            }
+        }
+
+        while (offerPrices.size() < offerItems.size())
+        {
+            offerPrices.add(0);
+        }
+
+        offersGenerated = true;
+    }
+
     public Item getOfferItem(int slotIndex)
     {
         if (slotIndex < 0 || slotIndex >= offerItems.size())
