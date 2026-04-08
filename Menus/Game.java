@@ -1,6 +1,8 @@
 package Menus;
 
 import javax.swing.*;
+import java.util.concurrent.ThreadLocalRandom;
+
 import Map.mapGenerator;
 import Map.Room.Room;
 import Renderers.DynamicOverlay;
@@ -92,6 +94,37 @@ public class Game {
         {
             selectedPlayerClass = playerClass;
         }
+    }
+
+    public static void setSeed(String seed)
+    {
+        testSeed = normalizeSeed(seed);
+    }
+
+    public static String getSeed()
+    {
+        return testSeed;
+    }
+
+    public static String normalizeSeed(String seed)
+    {
+        if (seed == null)
+        {
+            return createRandomSeed();
+        }
+
+        String numericSeed = seed.replaceAll("[^0-9]", "");
+        if (numericSeed.isBlank())
+        {
+            return createRandomSeed();
+        }
+
+        return numericSeed;
+    }
+
+    public static String createRandomSeed()
+    {
+        return String.valueOf(ThreadLocalRandom.current().nextLong(100000L, 1_000_000_000L));
     }
 
     public static String getSelectedPlayerClass()

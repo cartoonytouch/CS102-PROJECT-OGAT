@@ -2,11 +2,20 @@ package Menus;
 
 import java.awt.*;
 
+import javax.swing.JTextField;
+
 class NewGameMenu extends Menu {
+
+    private JTextField seedField;
 
     @Override
     protected void setButtons() {
         image = loadImage("Assets/MenuAssets/newgamemenu.png");
+
+        seedField = new JTextField(Game.createRandomSeed());
+        seedField.setBounds(610, 610, 380, 42);
+        seedField.setFont(new Font("Arial", Font.BOLD, 20));
+        add(seedField);
 
         buttons.add(new MenuButton(140, 390, 480, 50, () -> {
             System.out.println("Easy");
@@ -40,8 +49,22 @@ class NewGameMenu extends Menu {
         }));
 
         buttons.add(new MenuButton(560, 670, 480, 70, () -> {
+            applySeedSelection();
             Game.switchMenu(new StoryScreen());
         }));
+    }
+
+    private void applySeedSelection()
+    {
+        if (seedField == null)
+        {
+            Game.setSeed(Game.createRandomSeed());
+            return;
+        }
+
+        String normalizedSeed = Game.normalizeSeed(seedField.getText());
+        seedField.setText(normalizedSeed);
+        Game.setSeed(normalizedSeed);
     }
 
     @Override
@@ -56,5 +79,11 @@ class NewGameMenu extends Menu {
         if ("Swordsman".equals(playerClass)) g2.drawRect(1010, 390, 480, 50);
         else if ("Spearman".equals(playerClass)) g2.drawRect(1010, 480, 480, 50);
         else if ("Smasher".equals(playerClass)) g2.drawRect(1010, 570, 480, 50);
+
+        g2.setColor(new Color(255, 255, 255, 220));
+        g2.setFont(new Font("Arial", Font.BOLD, 22));
+        g2.drawString("Seed", 610, 600);
+        g2.setFont(new Font("Arial", Font.PLAIN, 16));
+        g2.drawString("Leave it as-is for a fresh random run, or type your own number.", 610, 665);
     }
 }

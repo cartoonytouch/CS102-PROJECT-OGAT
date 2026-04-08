@@ -14,8 +14,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 
 import Menus.Game;
 import Entities.Heart;
@@ -60,6 +64,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
     private final KeyHandler keyH = new KeyHandler();
     private final StationMenuOverlay stationMenuOverlay = new StationMenuOverlay();
     private final String mapSeed;
+    private final JTextField deathSeedField;
     Thread gameThread;
 
     public final Player player;
@@ -94,6 +99,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
             this.roomRenderer.setSize(screenWidth, screenHeight);
         }
 
+        this.setLayout(null);
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
@@ -112,6 +118,14 @@ public class DynamicOverlay extends JPanel implements Runnable {
             }
         });
         loadMinimapAssets();
+        registerGameOverKeyBindings();
+
+        deathSeedField = new JTextField(mapSeed);
+        deathSeedField.setBounds((screenWidth / 2) - 180, (screenHeight / 2) + 95, 360, 38);
+        deathSeedField.setFont(new Font("Monospaced", Font.BOLD, 20));
+        deathSeedField.setVisible(false);
+        deathSeedField.setEditable(true);
+        add(deathSeedField);
 
         player.xCoord = (screenWidth / 2) - (tileSize / 2);
         player.yCoord = (screenHeight / 2) - (tileSize / 2);
@@ -236,14 +250,12 @@ public void update()
         if (keyH.rPressed)
         {
             keyH.reset();
-            stopGameThread();
-            Game.showNewGameMenu();
+            returnToNewGameMenu();
         }
         else if (keyH.qPressed)
         {
             keyH.reset();
-            stopGameThread();
-            Game.quitApplication();
+            quitFromGameOver();
         }
         return;
     }
@@ -500,6 +512,8 @@ public void update()
         gameOver = true;
         gameState = GameState.GAME_OVER;
         stationMenuOverlay.close();
+        deathSeedField.setText(mapSeed);
+        deathSeedField.setVisible(true);
     }
 
     public void saveGame()
@@ -548,6 +562,7 @@ public void update()
         g2.setFont(new Font("Arial", Font.PLAIN, 20));
         g2.drawString("Press R for New Game", titleX + 95, titleY + 45);
         g2.drawString("Press Q to Quit", titleX + 125, titleY + 78);
+        g2.drawString("Current Seed (select and copy manually):", titleX - 20, titleY + 122);
     }
 
     private void applyBrightnessFilter(Graphics2D g2)
@@ -605,6 +620,50 @@ public void update()
         gameOver = false;
         gameState = GameState.RUNNING;
         stationMenuOverlay.close();
+        deathSeedField.setVisible(false);
         repaint();
+    }
+
+    private void returnToNewGameMenu()
+    {
+        deathSeedField.setVisible(false);
+        stopGameThread();
+        Game.showNewGameMenu();
+    }
+
+    private void quitFromGameOver()
+    {
+        deathSeedField.setVisible(false);
+        stopGameThread();
+        Game.quitApplication();
+    }
+
+    private void registerGameOverKeyBindings()
+    {
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('R'), "gameOverNewGame");
+        getActionMap().put("gameOverNewGame", new AbstractAction() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e)
+            {
+                if (gameState == GameState.GAME_OVER)
+                {
+                    keyH.reset();
+                    returnToNewGameMenu();
+                }
+            }
+        });
+
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke('Q'), "gameOverQuit");
+        getActionMap().put("gameOverQuit", new AbstractAction() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e)
+            {
+                if (gameState == GameState.GAME_OVER)
+                {
+                    keyH.reset();
+                    quitFromGameOver();
+                }
+            }
+        });
     }
 }
