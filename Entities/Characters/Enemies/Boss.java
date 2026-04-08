@@ -56,6 +56,7 @@ public class Boss extends Enemy{
                     coords[1] = coordY;
                 }
                 overlay.currentRoom.spawnEnemies(coordX, coordY, type);
+                overlay.currentRoom.localEnemies.get(overlay.currentRoom.localEnemies.size()-1).bindToOverlay(overlay);
             }
         }
         else if (attackPattern == 2)
