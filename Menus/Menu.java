@@ -1,4 +1,4 @@
-//package Menus;
+package Menus;
 
 import javax.swing.*;
 import javax.imageio.ImageIO;
@@ -18,6 +18,7 @@ abstract class Menu extends JPanel {
     protected Point mousePos = new Point(0, 0);
 
     public Menu() {
+        setLayout(null);
         setFocusable(true);
 
         addMouseListener(new MouseAdapter() {

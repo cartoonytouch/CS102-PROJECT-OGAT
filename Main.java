@@ -1,4 +1,4 @@
-//import Menus.Game;
+import Menus.Game;
 
 public class Main {
     public static void main(String[] args) {

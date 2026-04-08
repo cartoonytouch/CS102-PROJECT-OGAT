@@ -24,8 +24,6 @@ import Entities.Characters.Enemies.Enemy;
 import HelperClasses.KeyHandler;
 import Map.mapGenerator;
 import Map.Room.Room;
-//import Menus.Game;
-//import Menus.PauseMenu;
 import Map.Room.Station;
 
 public class DynamicOverlay extends JPanel implements Runnable {
@@ -255,7 +253,7 @@ public void update()
     if (keyH.escPressed) {
         keyH.escPressed = false; // Reset so it doesn't flicker
         pauseGame();
-        //Game.switchMenu(new PauseMenu(this));
+        MenuBridge.openPauseMenu(this);
         return;
     }
 
@@ -378,11 +376,13 @@ public void update()
         }
 
         player.draw(g2);
-        drawMinimap(g2);
         for (Projectile p : currentRoom.projectiles)
         {
             p.draw(g2);
         }
+
+        applyBrightnessFilter(g2);
+        drawMinimap(g2);
         
         if (playerHeart != null)
         {
@@ -516,6 +516,11 @@ public void update()
         restartGameSession();
     }
 
+    public void stopGameThread()
+    {
+        gameThread = null;
+    }
+
     private void drawGameOverOverlay(Graphics2D g2)
     {
         g2.setColor(new Color(0, 0, 0, 150));
@@ -530,6 +535,18 @@ public void update()
 
         g2.setFont(new Font("Arial", Font.PLAIN, 20));
         g2.drawString("Press R to Restart", titleX + 110, titleY + 45);
+    }
+
+    private void applyBrightnessFilter(Graphics2D g2)
+    {
+        int darknessAlpha = GameSettings.getDarknessAlpha();
+        if (darknessAlpha <= 0)
+        {
+            return;
+        }
+
+        g2.setColor(new Color(0, 0, 0, darknessAlpha));
+        g2.fillRect(0, 0, getWidth(), getHeight());
     }
 
     private void restartGameSession()

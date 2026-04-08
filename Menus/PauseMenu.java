@@ -1,4 +1,4 @@
-//package Menus;
+package Menus;
 
 import Renderers.DynamicOverlay;
 
@@ -22,10 +22,12 @@ public class PauseMenu extends Menu{
         }));
 
         buttons.add(new MenuButton(550, 480, 480, 70, () -> {
-            Game.switchMenu(new OptionsMenu());
+            Game.switchMenu(new OptionsMenu(gamePanel));
         }));
 
         buttons.add(new MenuButton(550, 610, 480, 70, () -> {
+            gamePanel.saveGame();
+            gamePanel.stopGameThread();
             Game.switchMenu(new MainMenu());
         }));
     }

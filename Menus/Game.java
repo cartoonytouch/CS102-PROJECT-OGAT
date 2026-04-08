@@ -1,9 +1,10 @@
-//package Menus;
+package Menus;
 
 import javax.swing.*;
 import Map.mapGenerator;
 import Map.Room.Room;
 import Renderers.DynamicOverlay;
+import Renderers.MenuBridge;
 
 public class Game {
 
@@ -13,6 +14,7 @@ public class Game {
     private static String selectedPlayerClass = "Swordsman";
 
     public static void main(String[] args) {
+        MenuBridge.registerPauseMenuOpener(gamePanel -> Game.switchMenu(new PauseMenu(gamePanel)));
 
         frame = new JFrame("Cursed Crown");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
