@@ -246,7 +246,7 @@ public class Room {
     // spawn boss (always spawns in the center so no parameter needed)
     public void spawnBoss()
     {
-        Boss boss = new Boss(10, width/2, height/2);
+        Boss boss = new Boss(60, width/2, height/2);
         localEnemies.add(boss);
         int[] coordArray = {width/2, height/2};
         occupiedCoords.add(coordArray);

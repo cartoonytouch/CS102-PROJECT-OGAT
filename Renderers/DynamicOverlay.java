@@ -285,14 +285,26 @@ public void update()
     {
         currentRoom.checkCleared(player);
 
-        for (Enemy enemy : currentRoom.localEnemies)
+        for(int i=0; i<currentRoom.localEnemies.size(); i++) 
         {
+            Enemy enemy = currentRoom.localEnemies.get(i);
+
             if (enemy.overlay != this)
             {
                 enemy.bindToOverlay(this);
             }
             enemy.update();
         }
+            
+
+        // for (Enemy enemy : currentRoom.localEnemies)
+        // {
+        //     if (enemy.overlay != this)
+        //     {
+        //         enemy.bindToOverlay(this);
+        //     }
+        //     enemy.update();
+        // }
 
         updateProjectiles();
     }
