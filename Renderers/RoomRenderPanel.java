@@ -9,6 +9,8 @@ import Entities.StaticEntities.Rock;
 import Entities.StaticEntities.StaticEntity;
 import Entities.StaticEntities.Tile;
 import Entities.StaticEntities.Wall;
+import Items.Item;
+import Items.ItemCatalog;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -17,10 +19,13 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
 import Map.Room.BuyStation;
+import Map.Room.RewardDrop;
 import Map.Room.Room;
 import Map.Room.Station;
 import Map.Room.UpgradeStation;
@@ -44,6 +49,8 @@ public class RoomRenderPanel extends JPanel {
     private BufferedImage rockSprite;
     private BufferedImage doorSprite;
     private BufferedImage openDoorSprite;
+    private BufferedImage coinRewardSprite;
+    private final Map<String, BufferedImage> rewardIconCache = new HashMap<>();
 
     public RoomRenderPanel(Room activeRoom)
     {
@@ -79,6 +86,7 @@ public class RoomRenderPanel extends JPanel {
             rockSprite = ImageIO.read(new File("Assets/RoomAssets/rock.png"));
             doorSprite = ImageIO.read(new File("Assets/RoomAssets/closeddoor.png"));
             openDoorSprite = ImageIO.read(new File("Assets/RoomAssets/opendoor.png"));
+            coinRewardSprite = ImageIO.read(new File("Assets/ItemAssets/Coin.png"));
         }
         catch (IOException e)
         {
@@ -198,6 +206,12 @@ public class RoomRenderPanel extends JPanel {
                 }
             }
         }
+
+        RewardDrop rewardDrop = room.getRewardDrop();
+        if (rewardDrop != null)
+        {
+            drawRewardDrop(g, rewardDrop);
+        }
     }
 
     private void drawFallbackImage(Graphics g, BufferedImage sprite, int tileX, int tileY, Color fallbackColor)
@@ -273,6 +287,57 @@ public class RoomRenderPanel extends JPanel {
         g2d.setColor(Color.WHITE);
         g2d.drawString(label, x + (tileSize / 2) - 4, y + (tileSize / 2) + 5);
         g2d.dispose();
+    }
+
+    private void drawRewardDrop(Graphics g, RewardDrop rewardDrop)
+    {
+        BufferedImage rewardSprite = getRewardSprite(rewardDrop);
+        int drawSize = Math.max(tileSize / 2, 32);
+        int drawX = (rewardDrop.getCoordX() * tileSize) + ((tileSize - drawSize) / 2);
+        int drawY = (rewardDrop.getCoordY() * tileSize) + ((tileSize - drawSize) / 2);
+
+        if (rewardSprite != null)
+        {
+            g.drawImage(rewardSprite, drawX, drawY, drawSize, drawSize, null);
+            return;
+        }
+
+        g.setColor(rewardDrop.isCoinReward() ? Color.YELLOW : Color.CYAN);
+        g.fillOval(drawX, drawY, drawSize, drawSize);
+    }
+
+    private BufferedImage getRewardSprite(RewardDrop rewardDrop)
+    {
+        if (rewardDrop.isCoinReward())
+        {
+            return coinRewardSprite;
+        }
+
+        Item itemReward = rewardDrop.getItemReward();
+        if (itemReward == null)
+        {
+            return null;
+        }
+
+        String iconPath = ItemCatalog.getIconPath(itemReward.getItemID());
+        if (iconPath == null)
+        {
+            return null;
+        }
+
+        if (!rewardIconCache.containsKey(iconPath))
+        {
+            try
+            {
+                rewardIconCache.put(iconPath, ImageIO.read(new File(iconPath)));
+            }
+            catch (IOException e)
+            {
+                rewardIconCache.put(iconPath, null);
+            }
+        }
+
+        return rewardIconCache.get(iconPath);
     }
 
     private double rotationFor(char dir)

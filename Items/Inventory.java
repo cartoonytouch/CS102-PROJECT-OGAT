@@ -20,6 +20,12 @@ public class Inventory {
             return;
         }
 
+        if (!canAdd(item))
+        {
+            System.out.println("Inventory cannot accept " + item.getName() + ".");
+            return;
+        }
+
         if (item instanceof Weapon)
         {
             if (items[0] == null)
@@ -84,6 +90,10 @@ public class Inventory {
 
         if (item instanceof Weapon)
         {
+            if (containsItemId(item.getItemID()))
+            {
+                return false;
+            }
             return items[0] == null || items[1] == null;
         }
 
@@ -94,6 +104,10 @@ public class Inventory {
 
         if (item instanceof Passive)
         {
+            if (containsItemId(item.getItemID()))
+            {
+                return false;
+            }
             return items[3] == null;
         }
 
@@ -163,5 +177,23 @@ public class Inventory {
         {
             choosedWeaponIndex = 0;
         }
+    }
+
+    public boolean containsItemId(String itemId)
+    {
+        if (itemId == null || itemId.isBlank())
+        {
+            return false;
+        }
+
+        for (Item inventoryItem : items)
+        {
+            if (inventoryItem != null && itemId.equals(inventoryItem.getItemID()))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

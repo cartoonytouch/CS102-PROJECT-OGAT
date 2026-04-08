@@ -2,6 +2,7 @@ package Map.Room;
 import java.util.Random;
 
 import Entities.FloorObjects;
+import Entities.Characters.Player;
 import Entities.Characters.Enemies.Enemy;
 import Entities.Characters.Enemies.LongRangeEnemy;
 import Entities.Characters.Enemies.MeleeEnemy;
@@ -12,6 +13,8 @@ import Entities.StaticEntities.Rock;
 import Entities.StaticEntities.StaticEntity;
 import Entities.StaticEntities.Tile;
 import Entities.StaticEntities.Wall;
+import Items.Item;
+import Items.ItemCatalog;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +50,8 @@ public class Room {
     public List<Door> placedDoors = new ArrayList<>();
     public List<Pit> placedPits = new ArrayList<>();
     public List<Station> placedStations = new ArrayList<>();
+    private RewardDrop rewardDrop;
+    private boolean spawnedRewards;
 
 
     // room constructor
@@ -59,6 +64,8 @@ public class Room {
         this.gridX = gridX;
         this.gridY = gridY;
         this.rng = sharedRng;
+        this.rewardDrop = null;
+        this.spawnedRewards = false;
         
         // initialize if its cleared or not
         if (type.equals("Start") || type.equals("Shop") || type.equals("Empty"))
@@ -387,7 +394,7 @@ public class Room {
     }
 
     // update to check if the room is cleared
-    public void checkCleared()
+    public void checkCleared(Player player)
     {
         if (localEnemies.size() == 0)
         {
@@ -398,33 +405,128 @@ public class Room {
 
                 if (type.equals("Enemy"))
                 {
-                    spawnRewards();
+                    spawnRewards(player);
                 }
             }
         }
     }
 
-    // spawn the items after room is cleared
-    // needs the item pool 
-    // WIP
-    // WIP
-    // WIP
-    public void spawnRewards()
+    public void spawnRewards(Player player)
     {
-        int spawnItemCount = rng.nextInt(1);
-        int spawnCoinCount = rng.nextInt(3);
-
-        //spawn items
-        for(int i = 0; i < spawnItemCount; i++)
+        if (spawnedRewards || !type.equals("Enemy"))
         {
-            int randomIndex = rng.nextInt(100);
+            return;
         }
 
-        //spawn coins
-        for(int i = 0; i < spawnCoinCount; i++)
+        int[] rewardCoords = findRewardSpawnLocation();
+        if (rewardCoords == null)
         {
-            
+            spawnedRewards = true;
+            return;
         }
+
+        Item rewardItem = createRewardItem(player);
+        if (rewardItem != null && rng.nextBoolean())
+        {
+            rewardDrop = new RewardDrop(rewardCoords[0], rewardCoords[1], rewardItem);
+        }
+        else
+        {
+            rewardDrop = new RewardDrop(rewardCoords[0], rewardCoords[1], rng.nextInt(3) + 1);
+        }
+
+        spawnedRewards = true;
+    }
+
+    private Item createRewardItem(Player player)
+    {
+        if (player == null)
+        {
+            return null;
+        }
+
+        List<String> candidatePool = new ArrayList<>(player.getDiscoveredItemIds());
+        List<String> eligibleItemIds = new ArrayList<>();
+
+        for (String itemId : candidatePool)
+        {
+            Item item = ItemCatalog.createItem(itemId);
+            if (item == null)
+            {
+                continue;
+            }
+
+            if (player.getInventory() != null && player.getInventory().canAdd(item))
+            {
+                eligibleItemIds.add(itemId);
+            }
+        }
+
+        if (eligibleItemIds.isEmpty())
+        {
+            return null;
+        }
+
+        String rewardItemId = eligibleItemIds.get(rng.nextInt(eligibleItemIds.size()));
+        return ItemCatalog.createItem(rewardItemId);
+    }
+
+    public RewardDrop getRewardDrop()
+    {
+        return rewardDrop;
+    }
+
+    public void clearRewardDrop()
+    {
+        rewardDrop = null;
+    }
+
+    public boolean isValidRewardSpawn(int coordX, int coordY)
+    {
+        if (coordX <= 0 || coordX >= width - 1 || coordY <= 0 || coordY >= height - 1)
+        {
+            return false;
+        }
+
+        FloorObjects floorObject = localFloorGrid[coordY][coordX];
+        if (floorObject instanceof Pit)
+        {
+            return false;
+        }
+
+        StaticEntity staticEntity = localObjectGrid[coordY][coordX];
+        return !(staticEntity instanceof Rock);
+    }
+
+    private int[] findRewardSpawnLocation()
+    {
+        int centerX = width / 2;
+        int centerY = height / 2;
+        int maxRadius = Math.max(width, height);
+
+        for (int radius = 0; radius < maxRadius; radius++)
+        {
+            for (int offsetY = -radius; offsetY <= radius; offsetY++)
+            {
+                for (int offsetX = -radius; offsetX <= radius; offsetX++)
+                {
+                    if (Math.abs(offsetX) != radius && Math.abs(offsetY) != radius)
+                    {
+                        continue;
+                    }
+
+                    int candidateX = centerX + offsetX;
+                    int candidateY = centerY + offsetY;
+
+                    if (isValidRewardSpawn(candidateX, candidateY))
+                    {
+                        return new int[]{candidateX, candidateY};
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     public void openAllDoors()

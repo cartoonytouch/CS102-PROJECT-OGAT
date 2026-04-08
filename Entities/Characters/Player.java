@@ -26,6 +26,7 @@ import Items.Weapons.Hammer;
 import Items.Weapons.Spear;
 import Items.Weapons.Sword;
 import Items.Weapons.Weapon;
+import Map.Room.RewardDrop;
 import Map.Room.Station;
 import Renderers.DynamicOverlay;
 
@@ -176,7 +177,7 @@ public class Player extends GameCharacter {
         spped = NORMAL_SPEED;
         direction = "down";
 
-        health = 3;
+        health = 6;
         mana = 100;
         currency = 0;
         canParry = true;
@@ -1055,6 +1056,8 @@ public class Player extends GameCharacter {
                 staminaReCounter = 0;
             }
         }
+
+        collectRewardDrop();
     }
 
     public void draw(Graphics2D g2)
@@ -1259,6 +1262,14 @@ public class Player extends GameCharacter {
         this.currency = currency - amount;
     }
 
+    public void addCurrency(int amount)
+    {
+        if (amount > 0)
+        {
+            this.currency += amount;
+        }
+    }
+
     public int getCurrency()
     {
         return currency;
@@ -1296,5 +1307,50 @@ public class Player extends GameCharacter {
             }
         }
         return discoveredShopItems;
+    }
+
+    public List<String> getDiscoveredItemIds()
+    {
+        return new ArrayList<>(discoveredItemIds);
+    }
+
+    private void collectRewardDrop()
+    {
+        if (overlay.currentRoom == null)
+        {
+            return;
+        }
+
+        RewardDrop rewardDrop = overlay.currentRoom.getRewardDrop();
+        if (rewardDrop == null)
+        {
+            return;
+        }
+
+        Rectangle playerBox = getSolidArea();
+        Rectangle rewardBounds = rewardDrop.getBounds(overlay.tileSize);
+
+        if (playerBox == null || !playerBox.intersects(rewardBounds))
+        {
+            return;
+        }
+
+        if (rewardDrop.isCoinReward())
+        {
+            addCurrency(rewardDrop.getCoinAmount());
+            overlay.currentRoom.clearRewardDrop();
+            return;
+        }
+
+        Item itemReward = rewardDrop.getItemReward();
+        if (itemReward == null || inventory == null || !inventory.canAdd(itemReward))
+        {
+            return;
+        }
+
+        itemReward.setPlayer(this);
+        inventory.add(itemReward);
+        discoverItem(itemReward);
+        overlay.currentRoom.clearRewardDrop();
     }
 }
