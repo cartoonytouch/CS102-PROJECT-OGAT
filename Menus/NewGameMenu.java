@@ -24,18 +24,15 @@ class NewGameMenu extends Menu {
         }));
 
         buttons.add(new MenuButton(1010, 390, 480, 50, () -> {
-            System.out.println("Swordsman");
-            //GameEngine.setClass("Swordsman");
+            Game.setSelectedPlayerClass("Swordsman");
         }));
 
         buttons.add(new MenuButton(1010, 480, 480, 50, () -> {
-            System.out.println("Spearman");
-            //GameEngine.setClass("Spearman");
+            Game.setSelectedPlayerClass("Spearman");
         }));
 
         buttons.add(new MenuButton(1010, 570, 480, 50, () -> {
-            System.out.println("Smasher");
-            //GameEngine.setClass("Smasher");
+            Game.setSelectedPlayerClass("Smasher");
         }));
         
         buttons.add(new MenuButton(560, 770, 480, 70, () -> {
@@ -55,20 +52,9 @@ class NewGameMenu extends Menu {
         g2.setStroke(new BasicStroke(5));
         g2.setColor(new Color(255, 215, 0, 150));
 
-        /*
-        String diff = GameEngine.getDifficulty();
-        if (diff != null) {
-            if (diff.equals("Easy")) g2.drawRect(140, 390, 480, 50);
-            else if (diff.equals("Normal")) g2.drawRect(140, 480, 480, 50);
-            else if (diff.equals("Hard")) g2.drawRect(140, 570, 480, 50);
-        }
-
-        String pClass = Game.engine.getSelectedClass();
-        if (pClass != null) {
-            if (pClass.equals("Swordsman")) g2.drawRect(1010, 390, 480, 50);
-            else if (pClass.equals("Spearman")) g2.drawRect(1010, 480, 480, 50);
-            else if (pClass.equals("Smasher")) g2.drawRect(1010, 570, 480, 50);
-        }
-        */
+        String playerClass = Game.getSelectedPlayerClass();
+        if ("Swordsman".equals(playerClass)) g2.drawRect(1010, 390, 480, 50);
+        else if ("Spearman".equals(playerClass)) g2.drawRect(1010, 480, 480, 50);
+        else if ("Smasher".equals(playerClass)) g2.drawRect(1010, 570, 480, 50);
     }
 }

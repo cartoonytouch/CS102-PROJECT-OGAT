@@ -22,6 +22,7 @@ import Entities.Projectile;
 import Entities.Characters.Player;
 import Entities.Characters.Enemies.Enemy;
 import HelperClasses.KeyHandler;
+import Map.mapGenerator;
 import Map.Room.Room;
 //import Menus.Game;
 //import Menus.PauseMenu;
@@ -59,9 +60,10 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
     private final KeyHandler keyH = new KeyHandler();
     private final StationMenuOverlay stationMenuOverlay = new StationMenuOverlay();
+    private final String mapSeed;
     Thread gameThread;
 
-    public final Player player = new Player(this, keyH);
+    public final Player player;
 
     public Room currentRoom;
     public RoomRenderPanel roomRenderer;
@@ -74,11 +76,18 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
     public DynamicOverlay(Room[][] grid, Room startRoom)
     {
+        this(grid, startRoom, "0", "Swordsman");
+    }
+
+    public DynamicOverlay(Room[][] grid, Room startRoom, String mapSeed, String playerClass)
+    {
+        this.mapSeed = (mapSeed == null || mapSeed.isBlank()) ? "0" : mapSeed;
         this.mapGrid = grid;
         this.curGridX = startRoom.gridX;
         this.curGridY = startRoom.gridY;
         this.currentRoom = startRoom;
         this.playerHeart = new Heart(this);
+        this.player = new Player(this, keyH, playerClass);
 
         if (this.currentRoom != null)
         {
@@ -223,6 +232,16 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
 public void update()
 {
+    if (gameState == GameState.GAME_OVER)
+    {
+        if (keyH.rPressed)
+        {
+            keyH.reset();
+            restartGameSession();
+        }
+        return;
+    }
+
     if (stationMenuOverlay.isOpen())
     {
         if (keyH.escPressed)
@@ -466,6 +485,7 @@ public void update()
     }
 
     public void gameOver() {
+        gameOver = true;
         gameState = GameState.GAME_OVER;
         stationMenuOverlay.close();
     }
@@ -493,9 +513,7 @@ public void update()
 
     public void resetGame()
     {
-        gameOver = false;
-        gameState = GameState.RUNNING;
-        //Game.switchMenu(new menus.MainMenu());
+        restartGameSession();
     }
 
     private void drawGameOverOverlay(Graphics2D g2)
@@ -512,5 +530,51 @@ public void update()
 
         g2.setFont(new Font("Arial", Font.PLAIN, 20));
         g2.drawString("Press R to Restart", titleX + 110, titleY + 45);
+    }
+
+    private void restartGameSession()
+    {
+        mapGenerator generator = new mapGenerator(mapSeed);
+        generator.generate(12);
+        mapGrid = generator.getGrid();
+
+        Room startRoom = null;
+        for (int row = 0; row < mapGrid.length; row++)
+        {
+            for (int col = 0; col < mapGrid[row].length; col++)
+            {
+                if (mapGrid[row][col] != null && "Start".equals(mapGrid[row][col].type))
+                {
+                    startRoom = mapGrid[row][col];
+                    break;
+                }
+            }
+
+            if (startRoom != null)
+            {
+                break;
+            }
+        }
+
+        if (startRoom == null)
+        {
+            throw new IllegalStateException("Failed to restart game: no start room generated.");
+        }
+
+        currentRoom = startRoom;
+        curGridX = startRoom.gridX;
+        curGridY = startRoom.gridY;
+        roomRenderer.setActiveRoom(currentRoom);
+        bindCurrentRoomEnemies();
+        revealRooms();
+
+        player.resetForNewRun(player.getPlayerClass());
+        player.xCoord = (screenWidth / 2) - (tileSize / 2);
+        player.yCoord = (screenHeight / 2) - (tileSize / 2);
+
+        gameOver = false;
+        gameState = GameState.RUNNING;
+        stationMenuOverlay.close();
+        repaint();
     }
 }

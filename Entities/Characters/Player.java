@@ -190,6 +190,37 @@ public class Player extends GameCharacter {
         appliedPassiveID = "";
     }
 
+    public void resetForNewRun(String playerClass)
+    {
+        this.playerClass = normalizePlayerClass(playerClass);
+        this.inventory = new Inventory();
+
+        isDashing = false;
+        dashCounter = 0;
+        staminaReCounter = 0;
+        isAttacking = false;
+        attackCounter = 0;
+        damageAppliedForThisAttack = false;
+        isParrying = false;
+        parryCounter = 0;
+        isInteracting = false;
+        isConsuming = false;
+        consumableStartTime = 0;
+        consumableDuration = 0;
+        isBuffActive = false;
+        isAttackBuffActive = false;
+        buffName = "";
+        isMoving = false;
+        isInvisible = false;
+        invisibleCounter = 0;
+        swapCounter = 0;
+        isSwapping = false;
+
+        setDefault();
+        seedDiscoveredItemPool();
+        grantStarterLoadout();
+    }
+
     private String normalizePlayerClass(String playerClass)
     {
         if (playerClass == null || playerClass.isBlank())

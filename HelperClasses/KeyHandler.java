@@ -10,6 +10,24 @@ public class KeyHandler implements KeyListener{
     public boolean attackPressed, switchWeaponPressed, rPressed;
     public boolean escPressed;
 
+    public void reset()
+    {
+        upPressed = false;
+        downPressed = false;
+        leftPressed = false;
+        rightPressed = false;
+        spacePressed = false;
+        jPressed = false;
+        kPressed = false;
+        ePressed = false;
+        cPressed = false;
+        lPressed = false;
+        attackPressed = false;
+        switchWeaponPressed = false;
+        rPressed = false;
+        escPressed = false;
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
     }

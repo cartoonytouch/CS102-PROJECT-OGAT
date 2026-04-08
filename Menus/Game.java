@@ -10,6 +10,7 @@ public class Game {
     public static JFrame frame;
     public static Room[][] mapGrid;
     public static String testSeed = "0";
+    private static String selectedPlayerClass = "Swordsman";
 
     public static void main(String[] args) {
 
@@ -53,7 +54,7 @@ public class Game {
         }
 
         if (startRoom != null) {
-            DynamicOverlay gamePanel = new DynamicOverlay(mapGrid, startRoom);
+            DynamicOverlay gamePanel = new DynamicOverlay(mapGrid, startRoom, testSeed, selectedPlayerClass);
             
             switchMenu(gamePanel);
             
@@ -81,5 +82,18 @@ public class Game {
 
     public static Room[][] getMapGrid() {
         return mapGrid;
+    }
+
+    public static void setSelectedPlayerClass(String playerClass)
+    {
+        if (playerClass != null && !playerClass.isBlank())
+        {
+            selectedPlayerClass = playerClass;
+        }
+    }
+
+    public static String getSelectedPlayerClass()
+    {
+        return selectedPlayerClass;
     }
 }

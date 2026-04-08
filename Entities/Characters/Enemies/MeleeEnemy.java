@@ -8,7 +8,7 @@ public class MeleeEnemy extends Enemy{
     public MeleeEnemy(int gridX, int gridY){
         super(gridX, gridY);
         health = 1;
-        detectionRange = 0;
+        detectionRange = Integer.MAX_VALUE;
         attackPattern = 1;
         spped = 1;
     }
@@ -28,6 +28,15 @@ public class MeleeEnemy extends Enemy{
 
         double dx = overlay.player.xCoord - this.xCoord;
         double dy = overlay.player.yCoord - this.yCoord;
+        detectionRange = (int) Math.hypot(
+            overlay.currentRoom.width * overlay.tileSize,
+            overlay.currentRoom.height * overlay.tileSize
+        );
+
+        if (Math.hypot(dx, dy) > detectionRange)
+        {
+            return;
+        }
   
         Vector2D direction = new Vector2D(dx, dy);
         direction.normalize();
