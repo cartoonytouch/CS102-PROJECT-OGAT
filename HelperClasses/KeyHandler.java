@@ -7,7 +7,7 @@ public class KeyHandler implements KeyListener{
 
     public boolean upPressed , downPressed , leftPressed , rightPressed, spacePressed;
     public boolean jPressed, kPressed, ePressed, cPressed, lPressed;
-    public boolean attackPressed, switchWeaponPressed;
+    public boolean attackPressed, switchWeaponPressed, rPressed;
     public boolean escPressed;
 
     @Override
@@ -33,6 +33,9 @@ public class KeyHandler implements KeyListener{
         }
         if(code == KeyEvent.VK_SPACE){
             spacePressed = true;
+        }
+        if(code == KeyEvent.VK_R){
+            rPressed = true;
         }
 
         if(code == KeyEvent.VK_J){
@@ -78,6 +81,9 @@ public class KeyHandler implements KeyListener{
         }
         if(code == KeyEvent.VK_SPACE){
             spacePressed = false;
+        }
+        if(code == KeyEvent.VK_R){
+            rPressed = false;
         }
 
         if(code == KeyEvent.VK_J){

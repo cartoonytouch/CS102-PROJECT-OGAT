@@ -3,6 +3,9 @@ package Entities.Characters;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 
 import java.awt.*;
 import javax.swing.*;
@@ -21,11 +24,14 @@ import HelperClasses.KeyHandler;
 import Items.Consumable;
 import Items.Inventory;
 import Items.Item;
+import Items.ItemCatalog;
 import Items.Passive;
 import Items.Weapons.Hammer;
 import Items.Weapons.Spear;
 import Items.Weapons.Sword;
 import Items.Weapons.Weapon;
+import Map.Room.RewardDrop;
+import Map.Room.Station;
 import Renderers.DynamicOverlay;
 
 public class Player extends GameCharacter {
@@ -77,6 +83,7 @@ public class Player extends GameCharacter {
     public boolean isSwapping = false;
 
     public String appliedPassiveID;
+    private final LinkedHashSet<String> discoveredItemIds = new LinkedHashSet<>();
 
     public BufferedImage[] bodyUp = new BufferedImage[8];
     public BufferedImage[] bodyDown = new BufferedImage[8];
@@ -162,6 +169,7 @@ public class Player extends GameCharacter {
         this.playerClass = normalizePlayerClass(playerClass);
 
         setDefault();
+        seedDiscoveredItemPool();
         grantStarterLoadout();
         getPlayerImg();
     }
@@ -174,7 +182,7 @@ public class Player extends GameCharacter {
         spped = NORMAL_SPEED;
         direction = "down";
 
-        health = 3;
+        health = 6;
         mana = 100;
         currency = 0;
         canParry = true;
@@ -216,6 +224,13 @@ public class Player extends GameCharacter {
         }
 
         inventory.setChoosedWeaponIndex(0);
+        discoverItem(getChoosenWeapon());
+    }
+
+    private void seedDiscoveredItemPool()
+    {
+        discoveredItemIds.clear();
+        discoveredItemIds.addAll(ItemCatalog.getDefaultShopPool());
     }
 
     public void getPlayerImg()
@@ -682,6 +697,36 @@ public class Player extends GameCharacter {
 
     public void interact()
     {
+        if (overlay.currentRoom == null || overlay.currentRoom.placedStations == null)
+        {
+            return;
+        }
+
+        Station closestStation = null;
+        int closestDistance = Integer.MAX_VALUE;
+
+        for (Station station : overlay.currentRoom.placedStations)
+        {
+            if (!station.isPlayerNearby(this, overlay.tileSize))
+            {
+                continue;
+            }
+
+            int distance = Math.abs((station.coordX * overlay.tileSize) - xCoord)
+                + Math.abs((station.coordY * overlay.tileSize) - yCoord);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestStation = station;
+            }
+        }
+
+        if (closestStation != null)
+        {
+            System.out.println(closestStation.interact(this));
+            overlay.openStationMenu(closestStation);
+        }
     }
 
     public void consumeItem()
@@ -1029,6 +1074,8 @@ public class Player extends GameCharacter {
                 staminaReCounter = 0;
             }
         }
+
+        collectRewardDrop();
     }
 
     public void draw(Graphics2D g2)
@@ -1316,6 +1363,14 @@ public class Player extends GameCharacter {
         this.currency = currency - amount;
     }
 
+    public void addCurrency(int amount)
+    {
+        if (amount > 0)
+        {
+            this.currency += amount;
+        }
+    }
+
     public int getCurrency()
     {
         return currency;
@@ -1324,5 +1379,79 @@ public class Player extends GameCharacter {
     public String getPlayerClass()
     {
         return playerClass;
+    }
+
+    public void discoverItem(Item item)
+    {
+        if (item != null)
+        {
+            discoverItemId(item.getItemID());
+        }
+    }
+
+    public void discoverItemId(String itemId)
+    {
+        if (itemId != null && !itemId.isBlank())
+        {
+            discoveredItemIds.add(itemId);
+        }
+    }
+
+    public List<String> getDiscoveredShopItemIds()
+    {
+        List<String> discoveredShopItems = new ArrayList<>();
+        for (String itemId : discoveredItemIds)
+        {
+            if (ItemCatalog.isShopEligible(itemId))
+            {
+                discoveredShopItems.add(itemId);
+            }
+        }
+        return discoveredShopItems;
+    }
+
+    public List<String> getDiscoveredItemIds()
+    {
+        return new ArrayList<>(discoveredItemIds);
+    }
+
+    private void collectRewardDrop()
+    {
+        if (overlay.currentRoom == null)
+        {
+            return;
+        }
+
+        RewardDrop rewardDrop = overlay.currentRoom.getRewardDrop();
+        if (rewardDrop == null)
+        {
+            return;
+        }
+
+        Rectangle playerBox = getSolidArea();
+        Rectangle rewardBounds = rewardDrop.getBounds(overlay.tileSize);
+
+        if (playerBox == null || !playerBox.intersects(rewardBounds))
+        {
+            return;
+        }
+
+        if (rewardDrop.isCoinReward())
+        {
+            addCurrency(rewardDrop.getCoinAmount());
+            overlay.currentRoom.clearRewardDrop();
+            return;
+        }
+
+        Item itemReward = rewardDrop.getItemReward();
+        if (itemReward == null || inventory == null || !inventory.canAdd(itemReward))
+        {
+            return;
+        }
+
+        itemReward.setPlayer(this);
+        inventory.add(itemReward);
+        discoverItem(itemReward);
+        overlay.currentRoom.clearRewardDrop();
     }
 }

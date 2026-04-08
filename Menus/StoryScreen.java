@@ -11,14 +11,14 @@ public class StoryScreen extends Menu {
     private final int MAX_TICKS = 200;
     private Timer timer;
     
-    private String storyText = "The kingdom has fallen"; 
+    private String storyText = "The kingdom has fallen.";
 
     public StoryScreen() {
         super();
         setBackground(Color.BLACK);
         
         // 30 times a second
-        timer = new Timer(30, new ActionListener() {
+        timer = new Timer(15, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateFade();

@@ -12,6 +12,9 @@ import Items.Item;
 
 public abstract class Weapon extends Item {
 
+    public static final int MAX_UPGRADE_LEVEL = 5;
+
+    private final int baseAttackDamage;
     private int attackDamage;
     private int attackSpeed;
     private int range;
@@ -48,6 +51,7 @@ public abstract class Weapon extends Item {
 
     protected Weapon(int attackDamage, int attackSpeed, int range, int drawOffset, int visualScale)
     {
+        this.baseAttackDamage = attackDamage;
         this.attackDamage = attackDamage;
         this.attackSpeed = attackSpeed;
         this.range = range;
@@ -100,7 +104,15 @@ public abstract class Weapon extends Item {
         }
     }
 
-    public abstract void upgrade();
+    public void upgrade()
+    {
+        if (!canUpgrade())
+        {
+            return;
+        }
+
+        setUpgradeLevel(upgradeLevel + 1);
+    }
 
     public int getAttackDamage()
     {
@@ -132,9 +144,11 @@ public abstract class Weapon extends Item {
         this.range = range;
     }
 
-    public void setUpgradeLevel()
+    public void setUpgradeLevel(int upgradeLevel)
     {
-        this.upgradeLevel = 2;
+        int clampedLevel = Math.max(1, Math.min(MAX_UPGRADE_LEVEL, upgradeLevel));
+        this.upgradeLevel = clampedLevel;
+        this.attackDamage = baseAttackDamage + ((clampedLevel - 1) * 5);
     }
 
     public BufferedImage getSprite(String direction)
@@ -182,5 +196,15 @@ public abstract class Weapon extends Item {
     public int getUpgradeLevel()
     {
         return upgradeLevel;
+    }
+
+    public boolean canUpgrade()
+    {
+        return upgradeLevel < MAX_UPGRADE_LEVEL;
+    }
+
+    public int getMaxUpgradeLevel()
+    {
+        return MAX_UPGRADE_LEVEL;
     }
 }

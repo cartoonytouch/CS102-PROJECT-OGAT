@@ -9,13 +9,9 @@ import com.google.gson.Gson;
 import Items.Consumable;
 import Items.Inventory;
 import Items.Item;
+import Items.ItemCatalog;
 import Items.Passive;
-import Items.Weapons.GreatAxe;
-import Items.Weapons.Halberd;
-import Items.Weapons.Hammer;
-import Items.Weapons.Longsword;
-import Items.Weapons.Spear;
-import Items.Weapons.Sword;
+import Items.Weapons.Weapon;
 
 public class SaveSystem {
 
@@ -39,9 +35,14 @@ public class SaveSystem {
             {
                 Item[] items = game.player.getInventory().getItems();
                 data.inventoryItemIds = new String[items.length];
+                data.inventoryWeaponLevels = new int[items.length];
                 for (int i = 0; i < items.length; i++)
                 {
                     data.inventoryItemIds[i] = (items[i] != null) ? items[i].getItemID() : null;
+                    if (items[i] instanceof Weapon)
+                    {
+                        data.inventoryWeaponLevels[i] = ((Weapon) items[i]).getUpgradeLevel();
+                    }
                 }
                 data.choosedWeaponIndex = game.player.getInventory().getChoosedWeaponIndex();
             }
@@ -87,13 +88,26 @@ public class SaveSystem {
                 game.player.inventory = new Inventory();
                 for (String itemId : data.inventoryItemIds)
                 {
-                    Item item = createItem(itemId);
+                    Item item = ItemCatalog.createItem(itemId);
                     if (item != null)
                     {
                         item.setPlayer(game.player);
                         game.player.getInventory().add(item);
                     }
                 }
+
+                if (data.inventoryWeaponLevels != null)
+                {
+                    Item[] loadedItems = game.player.getInventory().getItems();
+                    for (int i = 0; i < loadedItems.length && i < data.inventoryWeaponLevels.length; i++)
+                    {
+                        if (loadedItems[i] instanceof Weapon)
+                        {
+                            ((Weapon) loadedItems[i]).setUpgradeLevel(data.inventoryWeaponLevels[i]);
+                        }
+                    }
+                }
+
                 game.player.getInventory().setChoosedWeaponIndex(data.choosedWeaponIndex);
                 game.player.appliedPassiveID = "";
                 game.player.updatePassiveEffect();
@@ -116,46 +130,4 @@ public class SaveSystem {
         }
     }
 
-    private static Item createItem(String itemId)
-    {
-        if (itemId == null || itemId.isBlank())
-        {
-            return null;
-        }
-
-        if (itemId.equals("31"))
-        {
-            return new Sword();
-        }
-        if (itemId.equals("32"))
-        {
-            return new Spear();
-        }
-        if (itemId.equals("33"))
-        {
-            return new Hammer();
-        }
-        if (itemId.equals("34"))
-        {
-            return new Longsword();
-        }
-        if (itemId.equals("35"))
-        {
-            return new Halberd();
-        }
-        if (itemId.equals("36"))
-        {
-            return new GreatAxe();
-        }
-        if (itemId.startsWith("2"))
-        {
-            return new Passive(itemId);
-        }
-        if (itemId.startsWith("1"))
-        {
-            return new Consumable(itemId);
-        }
-
-        return null;
-    }
 }

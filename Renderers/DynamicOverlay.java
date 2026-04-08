@@ -3,10 +3,13 @@ package Renderers;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +17,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import Entities.Heart;
 import Entities.Characters.Player;
 import Entities.Characters.Enemies.Enemy;
 import HelperClasses.KeyHandler;
@@ -39,6 +43,8 @@ public class DynamicOverlay extends JPanel implements Runnable {
     public Room[][] mapGrid;
     public int curGridX;
     public int curGridY;
+    public Heart playerHeart;
+    public boolean gameOver = false;
 
     public enum GameState {
         RUNNING, PAUSED, GAME_OVER
@@ -50,6 +56,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
     int FPS = 60;
 
     private final KeyHandler keyH = new KeyHandler();
+    private final StationMenuOverlay stationMenuOverlay = new StationMenuOverlay();
     Thread gameThread;
 
     public final Player player = new Player(this, keyH);
@@ -69,6 +76,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
         this.curGridX = startRoom.gridX;
         this.curGridY = startRoom.gridY;
         this.currentRoom = startRoom;
+        this.playerHeart = new Heart(this);
 
         if (this.currentRoom != null)
         {
@@ -81,6 +89,18 @@ public class DynamicOverlay extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if (stationMenuOverlay.isOpen())
+                {
+                    stationMenuOverlay.handleClick(e.getX(), e.getY(), player, screenWidth, screenHeight);
+                    repaint();
+                    requestFocusInWindow();
+                }
+            }
+        });
         loadMinimapAssets();
 
         player.xCoord = (screenWidth / 2) - (tileSize / 2);
@@ -200,7 +220,17 @@ public class DynamicOverlay extends JPanel implements Runnable {
     }
 
     public void update()
+{
+
+    if (stationMenuOverlay.isOpen())
     {
+        if (keyH.escPressed)
+        {
+            keyH.escPressed = false;
+            stationMenuOverlay.close();
+        }
+        return;
+    }
 
     if (keyH.escPressed) {
         keyH.escPressed = false; // Reset so it doesn't flicker
@@ -216,13 +246,14 @@ public class DynamicOverlay extends JPanel implements Runnable {
     if (currentRoom != null)
     {
         bindCurrentRoomEnemies();
-        currentRoom.checkCleared();
+        currentRoom.checkCleared(player);
 
         for (Enemy enemy : currentRoom.localEnemies)
         {
             enemy.update();
         }
     }
+}
 
     player.getInventory().getItems()[0].update();
     }
@@ -310,6 +341,32 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
         player.draw(g2);
         drawMinimap(g2);
+        if (playerHeart != null)
+        {
+            playerHeart.draw(g2);
+        }
+
+        g2.setFont(new Font("Arial", Font.BOLD, 24)); 
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON); 
+
+        int Nx = tileSize / 2; 
+        int Ny = tileSize + 20; 
+
+
+        g2.setColor(Color.YELLOW); 
+        g2.drawString("Currency: " + player.currency, Nx, Ny);
+
+
+        Ny += 30;
+        g2.setColor(Color.CYAN);
+        g2.drawString("Mana: " + player.mana, Nx, Ny);
+        
+        stationMenuOverlay.draw(g2, player, screenWidth, screenHeight);
+
+        if (gameOver || gameState == GameState.GAME_OVER)
+        {
+            drawGameOverOverlay(g2);
+        }
         g2.dispose();
     }
 
@@ -386,6 +443,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
     public void gameOver() {
         gameState = GameState.GAME_OVER;
+        stationMenuOverlay.close();
     }
 
     public void saveGame()
@@ -396,5 +454,39 @@ public class DynamicOverlay extends JPanel implements Runnable {
     public void loadGame()
     {
         SaveSystem.load(this);
+    }
+
+    public void openStationMenu(Station station)
+    {
+        if (station == null)
+        {
+            return;
+        }
+
+        stationMenuOverlay.open(station, player);
+        repaint();
+    }
+
+    public void resetGame()
+    {
+        gameOver = false;
+        gameState = GameState.RUNNING;
+        Game.switchMenu(new Menus.MainMenu());
+    }
+
+    private void drawGameOverOverlay(Graphics2D g2)
+    {
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRect(0, 0, getWidth(), getHeight());
+
+        g2.setFont(new Font("Arial", Font.BOLD, 80));
+        g2.setColor(Color.WHITE);
+        String title = "GAME OVER";
+        int titleX = (getWidth() / 2) - 220;
+        int titleY = getHeight() / 2;
+        g2.drawString(title, titleX, titleY);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 20));
+        g2.drawString("Press R to Restart", titleX + 110, titleY + 45);
     }
 }
