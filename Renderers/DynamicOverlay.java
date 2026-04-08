@@ -24,6 +24,7 @@ import HelperClasses.KeyHandler;
 import Map.Room.Room;
 //import Menus.Game;
 //import Menus.PauseMenu;
+import Map.Room.Station;
 
 public class DynamicOverlay extends JPanel implements Runnable {
     private static final int MINIMAP_VIEW_RADIUS = 2;
@@ -219,9 +220,8 @@ public class DynamicOverlay extends JPanel implements Runnable {
         }
     }
 
-    public void update()
+public void update()
 {
-
     if (stationMenuOverlay.isOpen())
     {
         if (keyH.escPressed)
@@ -253,10 +253,9 @@ public class DynamicOverlay extends JPanel implements Runnable {
             enemy.update();
         }
     }
-}
 
     player.getInventory().getItems()[0].update();
-    }
+}
 
     public void drawMinimap(Graphics2D g2)
     {
@@ -471,7 +470,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
     {
         gameOver = false;
         gameState = GameState.RUNNING;
-        Game.switchMenu(new Menus.MainMenu());
+        //Game.switchMenu(new menus.MainMenu());
     }
 
     private void drawGameOverOverlay(Graphics2D g2)
