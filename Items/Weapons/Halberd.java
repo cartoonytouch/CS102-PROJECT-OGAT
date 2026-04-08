@@ -13,7 +13,6 @@ public class Halberd extends Weapon {
     @Override
     public void upgrade()
     {
-        this.setUpgradeLevel();
-        this.setAttackDamage(attackDamageHigh + 5);
+        super.upgrade();
     }
 }

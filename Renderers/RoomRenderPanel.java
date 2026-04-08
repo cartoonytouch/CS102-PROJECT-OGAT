@@ -20,7 +20,10 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import Map.Room.BuyStation;
 import Map.Room.Room;
+import Map.Room.Station;
+import Map.Room.UpgradeStation;
 
 public class RoomRenderPanel extends JPanel {
     private Room room;
@@ -170,6 +173,10 @@ public class RoomRenderPanel extends JPanel {
                             break;
                     }
                 }
+                else if (objID instanceof Station)
+                {
+                    drawStation(g, (Station) objID);
+                }
                 else if (objID instanceof Rock)
                 {
                     drawFallbackImage(g, rockSprite, x, y, Color.DARK_GRAY);
@@ -243,6 +250,28 @@ public class RoomRenderPanel extends JPanel {
 
         g2d.rotate(rotationFor(tile.dir), centerX, centerY);
         g2d.drawImage(sprite, x, y, tileSize, tileSize, null);
+        g2d.dispose();
+    }
+
+    private void drawStation(Graphics g, Station station)
+    {
+        Graphics2D g2d = (Graphics2D) g.create();
+        int x = station.coordX * tileSize;
+        int y = station.coordY * tileSize;
+        int inset = Math.max(8, tileSize / 8);
+
+        Color bodyColor = new Color(87, 58, 38);
+        Color accentColor = (station instanceof BuyStation)
+            ? new Color(214, 177, 78)
+            : new Color(88, 174, 255);
+        String label = (station instanceof BuyStation) ? "B" : "U";
+
+        g2d.setColor(bodyColor);
+        g2d.fillRoundRect(x + inset, y + inset, tileSize - (inset * 2), tileSize - (inset * 2), 16, 16);
+        g2d.setColor(accentColor);
+        g2d.fillRoundRect(x + (tileSize / 4), y + (tileSize / 4), tileSize / 2, tileSize / 2, 12, 12);
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(label, x + (tileSize / 2) - 4, y + (tileSize / 2) + 5);
         g2d.dispose();
     }
 

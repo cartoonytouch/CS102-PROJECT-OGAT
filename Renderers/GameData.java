@@ -7,6 +7,7 @@ public class GameData {
     public int playerMana;
     public int playerCurrency;
     public String[] inventoryItemIds;
+    public int[] inventoryWeaponLevels;
     public int choosedWeaponIndex;
     public String playerClass;
 

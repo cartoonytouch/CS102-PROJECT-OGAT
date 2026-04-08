@@ -46,6 +46,7 @@ public class Room {
     private List<FloorObjects> placedFloorObjects = new ArrayList<>();
     public List<Door> placedDoors = new ArrayList<>();
     public List<Pit> placedPits = new ArrayList<>();
+    public List<Station> placedStations = new ArrayList<>();
 
 
     // room constructor
@@ -190,6 +191,10 @@ public class Room {
         {
             spawnBoss();
         }
+        else if (this.type.equals("Shop"))
+        {
+            spawnStations();
+        }
         spawnTiles();
     }
 
@@ -247,6 +252,25 @@ public class Room {
         placedRoomObjects.add(newRock);
         int[] coordArray = {rCoordX, rCoordY};
         occupiedCoords.add(coordArray);
+    }
+
+    public void spawnStations()
+    {
+        int centerY = height / 2;
+        placeStation(new BuyStation((width / 2) - 2, centerY, rng));
+        placeStation(new UpgradeStation((width / 2) + 2, centerY));
+    }
+
+    private void placeStation(Station station)
+    {
+        if (station == null)
+        {
+            return;
+        }
+
+        localObjectGrid[station.coordY][station.coordX] = station;
+        placedStations.add(station);
+        occupiedCoords.add(new int[]{station.coordX, station.coordY});
     }
 
     // spawn doors

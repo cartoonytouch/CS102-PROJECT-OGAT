@@ -13,7 +13,6 @@ public class Longsword extends Weapon {
     @Override
     public void upgrade()
     {
-        this.setUpgradeLevel();
-        this.setAttackDamage(attackDamageModerate + 5);
+        super.upgrade();
     }
 }

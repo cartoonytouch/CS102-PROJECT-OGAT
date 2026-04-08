@@ -7,6 +7,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Shape;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +20,7 @@ import Entities.Characters.Player;
 import Entities.Characters.Enemies.Enemy;
 import HelperClasses.KeyHandler;
 import Map.Room.Room;
+import Map.Room.Station;
 import Menus.Game;
 import Menus.PauseMenu;
 
@@ -50,6 +53,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
     int FPS = 60;
 
     private final KeyHandler keyH = new KeyHandler();
+    private final StationMenuOverlay stationMenuOverlay = new StationMenuOverlay();
     Thread gameThread;
 
     public final Player player = new Player(this, keyH);
@@ -81,6 +85,18 @@ public class DynamicOverlay extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                if (stationMenuOverlay.isOpen())
+                {
+                    stationMenuOverlay.handleClick(e.getX(), e.getY(), player, screenWidth, screenHeight);
+                    repaint();
+                    requestFocusInWindow();
+                }
+            }
+        });
         loadMinimapAssets();
 
         player.xCoord = (screenWidth / 2) - (tileSize / 2);
@@ -199,8 +215,17 @@ public class DynamicOverlay extends JPanel implements Runnable {
         }
     }
 
-    public void update()
+public void update()
 {
+    if (stationMenuOverlay.isOpen())
+    {
+        if (keyH.escPressed)
+        {
+            keyH.escPressed = false;
+            stationMenuOverlay.close();
+        }
+        return;
+    }
 
     if (keyH.escPressed) {
         keyH.escPressed = false; // Reset so it doesn't flicker
@@ -308,6 +333,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
         player.draw(g2);
         drawMinimap(g2);
+        stationMenuOverlay.draw(g2, player, screenWidth, screenHeight);
         g2.dispose();
     }
 
@@ -394,5 +420,16 @@ public class DynamicOverlay extends JPanel implements Runnable {
     public void loadGame()
     {
         SaveSystem.load(this);
+    }
+
+    public void openStationMenu(Station station)
+    {
+        if (station == null)
+        {
+            return;
+        }
+
+        stationMenuOverlay.open(station, player);
+        repaint();
     }
 }

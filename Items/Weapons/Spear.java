@@ -13,7 +13,6 @@ public class Spear extends Weapon {
     @Override
     public void upgrade()
     {
-        this.setUpgradeLevel();
-        this.setAttackDamage(attackDamageLow + 5);
+        super.upgrade();
     }
 }
