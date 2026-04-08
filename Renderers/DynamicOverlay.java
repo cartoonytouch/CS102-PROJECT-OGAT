@@ -17,6 +17,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import Menus.Game;
 import Entities.Heart;
 import Entities.Projectile;
 import Entities.Characters.Player;
@@ -235,7 +236,14 @@ public void update()
         if (keyH.rPressed)
         {
             keyH.reset();
-            restartGameSession();
+            stopGameThread();
+            Game.showNewGameMenu();
+        }
+        else if (keyH.qPressed)
+        {
+            keyH.reset();
+            stopGameThread();
+            Game.quitApplication();
         }
         return;
     }
@@ -267,6 +275,10 @@ public void update()
 
         for (Enemy enemy : currentRoom.localEnemies)
         {
+            if (enemy.overlay != this)
+            {
+                enemy.bindToOverlay(this);
+            }
             enemy.update();
         }
 
@@ -534,7 +546,8 @@ public void update()
         g2.drawString(title, titleX, titleY);
 
         g2.setFont(new Font("Arial", Font.PLAIN, 20));
-        g2.drawString("Press R to Restart", titleX + 110, titleY + 45);
+        g2.drawString("Press R for New Game", titleX + 95, titleY + 45);
+        g2.drawString("Press Q to Quit", titleX + 125, titleY + 78);
     }
 
     private void applyBrightnessFilter(Graphics2D g2)

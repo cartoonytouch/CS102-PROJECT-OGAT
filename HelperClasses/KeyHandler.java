@@ -7,7 +7,7 @@ public class KeyHandler implements KeyListener{
 
     public boolean upPressed , downPressed , leftPressed , rightPressed, spacePressed;
     public boolean jPressed, kPressed, ePressed, cPressed, lPressed;
-    public boolean attackPressed, switchWeaponPressed, rPressed;
+    public boolean attackPressed, switchWeaponPressed, rPressed, qPressed;
     public boolean escPressed;
 
     public void reset()
@@ -25,6 +25,7 @@ public class KeyHandler implements KeyListener{
         attackPressed = false;
         switchWeaponPressed = false;
         rPressed = false;
+        qPressed = false;
         escPressed = false;
     }
 
@@ -54,6 +55,9 @@ public class KeyHandler implements KeyListener{
         }
         if(code == KeyEvent.VK_R){
             rPressed = true;
+        }
+        if(code == KeyEvent.VK_Q){
+            qPressed = true;
         }
 
         if(code == KeyEvent.VK_J){
@@ -102,6 +106,9 @@ public class KeyHandler implements KeyListener{
         }
         if(code == KeyEvent.VK_R){
             rPressed = false;
+        }
+        if(code == KeyEvent.VK_Q){
+            qPressed = false;
         }
 
         if(code == KeyEvent.VK_J){

@@ -98,4 +98,14 @@ public class Game {
     {
         return selectedPlayerClass;
     }
+
+    public static void showNewGameMenu()
+    {
+        switchMenu(new NewGameMenu());
+    }
+
+    public static void quitApplication()
+    {
+        System.exit(0);
+    }
 }

@@ -38,6 +38,7 @@ public class Player extends GameCharacter {
     private static final int NORMAL_SPEED = 4;
     private static final int DASH_SPEED = 12;
     private static final int SPEED_BUFF = 7;
+    private static final int PARRY_DURATION = 20;
 
     KeyHandler keyH;
 
@@ -1098,7 +1099,7 @@ public class Player extends GameCharacter {
         if (isParrying)
         {
             parryCounter++;
-            if (parryCounter > 10)
+            if (parryCounter > PARRY_DURATION)
             {
                 isParrying = false;
                 parryCounter = 0;
