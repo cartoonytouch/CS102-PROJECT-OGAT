@@ -27,4 +27,7 @@ public class Consumable extends Item {
             this.name = "Speed Consumable";
         }
     }
+
+    public void update()
+    {}
 }

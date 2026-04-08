@@ -14,6 +14,9 @@ import Entities.Projectile;
 public class Boss extends Enemy{
 
     Random rng;
+    
+    long startTime;
+    long attackCooldown = 0;
     public ArrayList<Projectile> projectiles = new ArrayList<>();
 
     public Boss(int hp, int x, int y)
@@ -78,5 +81,24 @@ public class Boss extends Enemy{
     {
         Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 10);
         projectiles.add(p);
+    }
+
+    public void update()
+    {
+        if(attackCooldown == 0)
+        {
+            startTime = System.currentTimeMillis();
+        }
+        else
+        {
+            attackCooldown = System.currentTimeMillis() - startTime;
+        }
+
+        if(attackCooldown >= 5000)
+        {
+            attackCooldown = 0;
+            attackPattern = rng.nextInt(2);
+            attack();
+        }
     }
 }

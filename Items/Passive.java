@@ -27,4 +27,9 @@ public class Passive extends Item {
             this.name = "Speed Passive";
         }
     }
+
+    public void update()
+    {
+        
+    }
 }

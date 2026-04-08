@@ -1,12 +1,16 @@
 package Entities.Characters;
 
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import java.awt.*;
+import javax.swing.*;
+
 import javax.imageio.ImageIO;
+
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 import Entities.Characters.Enemies.Enemy;
 import Entities.StaticEntities.Door;
@@ -50,6 +54,7 @@ public class Player extends GameCharacter {
 
     public boolean isAttacking = false;
     public int attackCounter = 0;
+    
     public boolean damageAppliedForThisAttack = false;
 
     public boolean isParrying = false;
@@ -549,6 +554,7 @@ public class Player extends GameCharacter {
         {
             weapon.swing();
             isAttacking = true;
+            
             attackCounter = 0;
             damageAppliedForThisAttack = false;
             System.out.println("Attack!");
@@ -846,6 +852,16 @@ public class Player extends GameCharacter {
     {
         updatePassiveEffect();
 
+        
+
+        for (int i=0; i<this.getInventory().getItems().length; i++)
+        {
+            if(this.getInventory().getItems()[i] != null)
+            {
+                this.getInventory().getItems()[i].update();
+            }
+        }
+
         if (keyH.spacePressed)
         {
             dash();
@@ -943,6 +959,7 @@ public class Player extends GameCharacter {
         if (isAttacking)
         {
             attackCounter++;
+            
             isMoving = false;
 
             Weapon weapon = getChoosenWeapon();
@@ -958,6 +975,7 @@ public class Player extends GameCharacter {
                 {
                     isAttacking = false;
                     attackCounter = 0;
+                    
                     damageAppliedForThisAttack = false;
                 }
             }
@@ -1160,29 +1178,112 @@ public class Player extends GameCharacter {
         int drawHeight = attackAnimation.getHeight() * scale;
         int drawOffset = getChoosenWeapon().getDrawOffset();
 
+        int AnimationOffsetX = 0;
+        int AnimationOffsetY = 0;
+
         switch (direction)
         {
             case "up":
                 weaponY = yCoord - drawHeight + drawOffset;
-                weaponX = xCoord + (overlay.tileSize - drawWidth) / 2;
+                weaponX = xCoord - 20 + (overlay.tileSize - drawWidth) / 2;
+                attackAnimation = rotateImage(attackAnimation, -90);
+                AnimationOffsetX = -40;
+                AnimationOffsetY = 0;
                 break;
             case "down":
                 weaponY = yCoord + overlay.tileSize - drawOffset;
                 weaponX = xCoord + (overlay.tileSize - drawWidth) / 2;
+                attackAnimation = rotateImage(attackAnimation, 90);
+                AnimationOffsetX = 40;
+                AnimationOffsetY = 0;
                 break;
             case "left":
                 weaponY = yCoord + (overlay.tileSize - drawHeight) / 2;
-                weaponX = xCoord - drawWidth + drawOffset;
+                weaponX = xCoord - 20 - drawWidth + drawOffset;
+                attackAnimation = rotateImage(attackAnimation, 180);
+                AnimationOffsetX = 0;
+                AnimationOffsetY = 40;
                 break;
             case "right":
                 weaponY = yCoord + (overlay.tileSize - drawHeight) / 2;
                 weaponX = xCoord + overlay.tileSize - drawOffset;
+                attackAnimation = rotateImage(attackAnimation, 0);
+                AnimationOffsetX = 0;
+                AnimationOffsetY = -40;
                 break;
             default:
                 break;
         }
 
-        g2.drawImage(attackAnimation, weaponX, weaponY, drawWidth, drawHeight, null);
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+
+        Weapon weapon = getChoosenWeapon();
+        if(attackCounter < weapon.getAttackDuration()/3)
+        {
+            BufferedImage rotate1 = rotateImage(attackAnimation, 0);
+            g2.drawImage(rotate1, weaponX + AnimationOffsetX, weaponY + AnimationOffsetY, drawWidth, drawHeight, null);
+        }
+        else if(attackCounter < (2*weapon.getAttackDuration())/3)
+        {
+            BufferedImage rotate2 = rotateImage(attackAnimation, 45);
+            g2.drawImage(rotate2, weaponX, weaponY, (int)(drawWidth*Math.sqrt(2)), (int)(drawHeight*Math.sqrt(2)), null);
+        }
+        else if (attackCounter < weapon.getAttackDuration())
+        {
+            if(AnimationOffsetX == 40)
+            {
+                AnimationOffsetX = -40;
+            }
+            else if(AnimationOffsetX == -40)
+            {
+                AnimationOffsetX = 40;
+            }
+
+            if(AnimationOffsetY == 40)
+            {
+                AnimationOffsetY = -40;
+            }
+            else if(AnimationOffsetY == -40)
+            {
+                AnimationOffsetY = 40;
+            }
+
+            BufferedImage rotate3 = rotateImage(attackAnimation, 90);
+            g2.drawImage(rotate3, weaponX + AnimationOffsetX, weaponY + AnimationOffsetY, drawWidth, drawHeight, null);
+        }
+    }
+
+    public BufferedImage rotateImage(BufferedImage inputImage, double degrees) {
+    double rads = Math.toRadians(degrees);
+    double sin = Math.abs(Math.sin(rads));
+    double cos = Math.abs(Math.cos(rads));
+    
+    int w = inputImage.getWidth();
+    int h = inputImage.getHeight();
+    
+    
+    int newWidth = (int) Math.floor(w * cos + h * sin);
+    int newHeight = (int) Math.floor(h * cos + w * sin);
+
+    BufferedImage rotated = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g2d = rotated.createGraphics();
+    
+    
+    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+    
+    g2d.translate((newWidth - w) / 2, (newHeight - h) / 2);
+    
+    
+    g2d.rotate(rads, w / 2.0, h / 2.0);
+    
+    g2d.drawRenderedImage(inputImage, null);
+    g2d.dispose();
+
+    return rotated;
     }
 
     public Inventory getInventory()

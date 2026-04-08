@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import java.awt.*;
+
 import javax.imageio.ImageIO;
 
 import Items.Item;
@@ -20,6 +22,8 @@ public abstract class Weapon extends Item {
 
     public boolean ASbuff;
     public boolean ADbuff;
+
+    public boolean isEquipped;
 
     protected BufferedImage upSprite;
     protected BufferedImage downSprite;
@@ -38,6 +42,10 @@ public abstract class Weapon extends Item {
     public static final int rangeModerate = 20;
     public static final int rangeHigh = 25;
 
+    public boolean isSwinging = false;
+    private long swingStartTime = 0;
+    public Rectangle weaponHitbox = new Rectangle(0, 0, 0, 0);
+
     protected Weapon(int attackDamage, int attackSpeed, int range, int drawOffset, int visualScale)
     {
         this.attackDamage = attackDamage;
@@ -48,6 +56,8 @@ public abstract class Weapon extends Item {
         this.upgradeLevel = 1;
         this.ADbuff = false;
         this.ASbuff = false;
+
+        this.swingTime = 300;
     }
 
     protected void loadSharedSprite(String path)
@@ -74,11 +84,20 @@ public abstract class Weapon extends Item {
 
     public void swing()
     {
-        if (!canSwing())
-        {
-            return;
+        if (isEquipped && canSwing()) {
+            isSwinging = true;
+            swingStartTime = System.currentTimeMillis();
         }
-        swingTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public void update()
+    {
+        if (!isEquipped) {
+            ADbuff = false;
+            ASbuff = false;
+            isSwinging = false; 
+        }
     }
 
     public abstract void upgrade();

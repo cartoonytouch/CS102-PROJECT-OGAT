@@ -1,8 +1,9 @@
 package Items;
 
 import Entities.Characters.Player;
+import Interfaces.Updatable;
 
-public abstract class Item {
+public abstract class Item implements Updatable {
 
     protected String itemID;
     protected String name;
