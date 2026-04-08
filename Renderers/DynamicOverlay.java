@@ -522,6 +522,7 @@ public void update()
     }
 
     public void gameOver() {
+        SaveSystem.clearSave();
         gameOver = true;
         gameState = GameState.GAME_OVER;
         stationMenuOverlay.close();

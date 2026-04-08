@@ -55,6 +55,16 @@ public abstract class Enemy extends GameCharacter {
         }
     }
 
+    public int getSpawnGridX()
+    {
+        return spawnGridX;
+    }
+
+    public int getSpawnGridY()
+    {
+        return spawnGridY;
+    }
+
     @Override
     public void move() {
     }

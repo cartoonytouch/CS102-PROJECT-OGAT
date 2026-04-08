@@ -124,14 +124,15 @@ public class SaveSystem {
 
         data.gridX = game.curGridX;
         data.gridY = game.curGridY;
-        data.rooms = serializeRooms(game.mapGrid);
+        data.rooms = serializeRooms(game);
 
         return data;
     }
 
-    private static GameData.RoomState[] serializeRooms(Room[][] mapGrid)
+    private static GameData.RoomState[] serializeRooms(DynamicOverlay game)
     {
         List<GameData.RoomState> roomStates = new ArrayList<>();
+        Room[][] mapGrid = game.mapGrid;
 
         if (mapGrid == null)
         {
@@ -153,7 +154,7 @@ public class SaveSystem {
                 roomState.gridY = room.gridY;
                 roomState.isDiscovered = room.isDiscovered;
                 roomState.isCleared = room.isCleared();
-                roomState.enemies = serializeEnemies(room.localEnemies);
+                roomState.enemies = serializeEnemies(room.localEnemies, game.tileSize);
                 roomState.rewardDrop = serializeReward(room.getRewardDrop());
                 roomState.buyStation = serializeBuyStation(room.placedStations);
                 roomStates.add(roomState);
@@ -163,7 +164,7 @@ public class SaveSystem {
         return roomStates.toArray(new GameData.RoomState[0]);
     }
 
-    private static GameData.EnemyState[] serializeEnemies(List<Enemy> enemies)
+    private static GameData.EnemyState[] serializeEnemies(List<Enemy> enemies, int tileSize)
     {
         if (enemies == null || enemies.isEmpty())
         {
@@ -180,8 +181,16 @@ public class SaveSystem {
 
             GameData.EnemyState enemyState = new GameData.EnemyState();
             enemyState.enemyType = getEnemyType(enemy);
-            enemyState.xCoord = enemy.xCoord;
-            enemyState.yCoord = enemy.yCoord;
+            if (enemy.overlay == null)
+            {
+                enemyState.xCoord = enemy.getSpawnGridX() * tileSize;
+                enemyState.yCoord = enemy.getSpawnGridY() * tileSize;
+            }
+            else
+            {
+                enemyState.xCoord = enemy.xCoord;
+                enemyState.yCoord = enemy.yCoord;
+            }
             enemyState.health = enemy.health;
             enemyStates.add(enemyState);
         }
