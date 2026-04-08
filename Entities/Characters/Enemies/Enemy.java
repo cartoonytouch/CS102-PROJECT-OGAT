@@ -23,6 +23,7 @@ public abstract class Enemy extends GameCharacter {
     protected BufferedImage headSprite;
     protected BufferedImage shirtSprite;
     protected BufferedImage helmetSprite;
+    protected BufferedImage ghostSprite;
 
     protected Enemy(int gridX, int gridY)
     {
@@ -64,11 +65,18 @@ public abstract class Enemy extends GameCharacter {
             return;
         }
 
-        drawLayer(g2, bodySprite);
-        drawLayer(g2, headSprite);
-        drawLayer(g2, shirtSprite);
-        drawLayer(g2, pantSprite);
-        drawLayer(g2, helmetSprite);
+        if (this instanceof MeleeEnemy)
+        {
+            drawLayer(g2, ghostSprite);
+        }
+        else
+        {
+            drawLayer(g2, bodySprite);
+            drawLayer(g2, headSprite);
+            drawLayer(g2, shirtSprite);
+            drawLayer(g2, pantSprite);
+            drawLayer(g2, helmetSprite);
+        }
     }
 
 
@@ -77,11 +85,18 @@ public abstract class Enemy extends GameCharacter {
     private void loadPlaceholderSprites()
     {
         try {
-            bodySprite = loadDownIdleFrame("Assets/PlayerAssets/idle/body.png");
-            pantSprite = loadDownIdleFrame("Assets/PlayerAssets/idle/pant.png");
-            headSprite = loadDownIdleFrame("Assets/PlayerAssets/idle/head.png");
-            shirtSprite = loadDownIdleFrame("Assets/PlayerAssets/idle/shirt.png");
-            helmetSprite = loadDownIdleFrame("Assets/PlayerAssets/idle/helmet.png");
+            if (this instanceof MeleeEnemy)
+            {
+                ghostSprite = ImageIO.read(new File("Assets/EnemyAssets/MeleeEnemy/ghost.png"));
+            }
+            else
+            {
+                bodySprite = loadDownIdleFrame("Assets/PlayerAssets/idle/body.png");
+                pantSprite = loadDownIdleFrame("Assets/PlayerAssets/idle/pant.png");
+                headSprite = loadDownIdleFrame("Assets/PlayerAssets/idle/head.png");
+                shirtSprite = loadDownIdleFrame("Assets/PlayerAssets/idle/shirt.png");
+                helmetSprite = loadDownIdleFrame("Assets/PlayerAssets/idle/helmet.png");
+            }
         } catch (IOException e) {
             throw new RuntimeException("Failed to load placeholder enemy sprites", e);
         }
