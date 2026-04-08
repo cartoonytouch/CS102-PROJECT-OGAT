@@ -691,7 +691,12 @@ public void update()
         g2.setFont(new Font("Arial", Font.PLAIN, 16));
         int itemY = invY + 60;
         
-        g2.drawString("- Iron Sword", invX + 20, itemY);
-        g2.drawString("- Health Potion (x2)", invX + 20, itemY + 25);
+        for(int i=0; i<player.getInventory().getItems().length; i++) {
+
+            if (player.getInventory().getItems()[i] != null) {
+             
+                g2.drawString(player.getInventory().getItems()[i].getName(), invX + 20, itemY + 10*i);
+            }
+        }
     }
 }
