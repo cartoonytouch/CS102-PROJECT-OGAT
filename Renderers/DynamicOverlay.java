@@ -246,6 +246,7 @@ public void update()
 
     if (currentRoom != null)
     {
+        bindCurrentRoomEnemies();
         currentRoom.checkCleared(player);
 
         for (Enemy enemy : currentRoom.localEnemies)
