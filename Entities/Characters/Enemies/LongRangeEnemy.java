@@ -116,7 +116,7 @@ public class LongRangeEnemy extends Enemy {
             return;
         }
 
-        if(currentTime - startTime >= 5000)
+        if(currentTime - startTime >= 2000)
         {
             startTime = currentTime;
             Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 2);

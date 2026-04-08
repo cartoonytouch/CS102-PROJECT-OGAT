@@ -22,13 +22,13 @@ public class Projectile extends Entity {
 
     public Projectile(int startX, int startY, int speed, Player target, int damage) {
         
-        this.xCoord = startX;
-        this.yCoord = startY;
+        this.xCoord = startX+40;
+        this.yCoord = startY+40;
         this.spped = speed; 
         
         
-        this.preciseX = startX;
-        this.preciseY = startY;
+        this.preciseX = startX+40;
+        this.preciseY = startY+40; 
         this.damage = damage;
         this.active = true;
 
