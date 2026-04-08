@@ -47,7 +47,7 @@ public class Projectile extends Entity {
 
     @Override
     public void update() {
-        if (!active) return;
+        if (!active || overlay == null) return;
 
         preciseX += direction.x * spped;
         preciseY += direction.y * spped;
@@ -55,13 +55,19 @@ public class Projectile extends Entity {
         xCoord = (int) Math.round(preciseX);
         yCoord = (int) Math.round(preciseY);
 
-        if(this.solidArea.intersects(overlay.player.solidArea))
+        Rectangle projectileBox = getSolidArea();
+        Rectangle playerBox = overlay.player.getSolidArea();
+
+        if (isOutsideRoom())
         {
-            if(isActive())
-            {
-                overlay.player.takeDamage(this.getDamage());
-                destroy();
-            }
+            destroy();
+            return;
+        }
+
+        if(projectileBox != null && playerBox != null && projectileBox.intersects(playerBox))
+        {
+            overlay.player.takeDamage(this.getDamage());
+            destroy();
         }
     }
 
@@ -87,5 +93,21 @@ public class Projectile extends Entity {
     
     public int getDamage() {
         return damage;
+    }
+
+    private boolean isOutsideRoom()
+    {
+        if (overlay.currentRoom == null)
+        {
+            return false;
+        }
+
+        int maxX = overlay.currentRoom.width * overlay.tileSize;
+        int maxY = overlay.currentRoom.height * overlay.tileSize;
+
+        return xCoord < -solidArea.width
+            || yCoord < -solidArea.height
+            || xCoord > maxX
+            || yCoord > maxY;
     }
 }

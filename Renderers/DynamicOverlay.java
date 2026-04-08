@@ -246,17 +246,36 @@ public void update()
 
     if (currentRoom != null)
     {
-        bindCurrentRoomEnemies();
         currentRoom.checkCleared(player);
 
         for (Enemy enemy : currentRoom.localEnemies)
         {
             enemy.update();
         }
-    }
 
-    player.getInventory().getItems()[0].update();
+        updateProjectiles();
+    }
 }
+
+    private void updateProjectiles()
+    {
+        if (currentRoom == null)
+        {
+            return;
+        }
+
+        for (int i = currentRoom.projectiles.size() - 1; i >= 0; i--)
+        {
+            Projectile projectile = currentRoom.projectiles.get(i);
+            projectile.bindToOverlay(this);
+            projectile.update();
+
+            if (!projectile.isActive())
+            {
+                currentRoom.projectiles.remove(i);
+            }
+        }
+    }
 
     public void drawMinimap(Graphics2D g2)
     {

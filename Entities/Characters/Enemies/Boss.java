@@ -80,24 +80,23 @@ public class Boss extends Enemy{
     public void spawnProjectile()
     {
         Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 10);
+        p.bindToOverlay(overlay);
         overlay.currentRoom.projectiles.add(p);
     }
 
     public void update()
     {
-        if(attackCooldown == 0)
+        long currentTime = System.currentTimeMillis();
+        if (startTime == 0)
         {
-            startTime = System.currentTimeMillis();
-        }
-        else
-        {
-            attackCooldown = System.currentTimeMillis() - startTime;
+            startTime = currentTime;
+            return;
         }
 
-        if(attackCooldown >= 5000)
+        if(currentTime - startTime >= 5000)
         {
-            attackCooldown = 0;
-            attackPattern = rng.nextInt(2);
+            startTime = currentTime;
+            attackPattern = rng.nextInt(2) + 1;
             attack();
         }
     }

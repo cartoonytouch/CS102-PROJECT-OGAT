@@ -224,6 +224,7 @@ public class Player extends GameCharacter {
         }
 
         inventory.setChoosedWeaponIndex(0);
+        syncEquippedWeapons();
         discoverItem(getChoosenWeapon());
     }
 
@@ -445,12 +446,7 @@ public class Player extends GameCharacter {
         {
             for (Pit pit : overlay.currentRoom.placedPits)
             {
-                Rectangle pitRectangle = new Rectangle(
-                    (pit.coordX * overlay.tileSize) + (((overlay.tileSize) - (overlay.tileSize / 4)) / 2),
-                    (pit.coordY * overlay.tileSize) + (((overlay.tileSize) - (overlay.tileSize / 4)) / 2) - 10,
-                    overlay.tileSize / 4,
-                    overlay.tileSize / 4
-                );
+                Rectangle pitRectangle = createPitDamageBox(pit);
 
                 if (boxPlayer.intersects(pitRectangle))
                 {
@@ -485,6 +481,18 @@ public class Player extends GameCharacter {
             proposedY + solidArea.y,
             solidArea.width,
             solidArea.height
+        );
+    }
+
+    private Rectangle createPitDamageBox(Pit pit)
+    {
+        int inset = overlay.tileSize / 4;
+        int size = overlay.tileSize - (inset * 2);
+        return new Rectangle(
+            (pit.coordX * overlay.tileSize) + inset,
+            (pit.coordY * overlay.tileSize) + inset,
+            size,
+            size
         );
     }
 
@@ -672,7 +680,21 @@ public class Player extends GameCharacter {
     @Override
     public void takeDamage(int amount)
     {
-        health -= amount;
+        if (amount <= 0 || health <= 0 || isInvisible || isParrying)
+        {
+            return;
+        }
+
+        health = Math.max(0, health - amount);
+
+        if (health <= 0)
+        {
+            overlay.gameOver();
+            return;
+        }
+
+        isInvisible = true;
+        invisibleCounter = 0;
     }
 
     public void dash()
@@ -882,6 +904,7 @@ public class Player extends GameCharacter {
     public void swapWeapons()
     {
         this.getInventory().switchWeapon();
+        syncEquippedWeapons();
         isSwapping = true;
         swapCounter = 0;
 
@@ -896,6 +919,7 @@ public class Player extends GameCharacter {
     public void update()
     {
         updatePassiveEffect();
+        syncEquippedWeapons();
 
         
 
@@ -1413,6 +1437,23 @@ public class Player extends GameCharacter {
     public List<String> getDiscoveredItemIds()
     {
         return new ArrayList<>(discoveredItemIds);
+    }
+
+    private void syncEquippedWeapons()
+    {
+        if (inventory == null)
+        {
+            return;
+        }
+
+        Item[] inventoryItems = inventory.getItems();
+        for (int i = 0; i < 2 && i < inventoryItems.length; i++)
+        {
+            if (inventoryItems[i] instanceof Weapon)
+            {
+                ((Weapon) inventoryItems[i]).isEquipped = (i == inventory.getChoosedWeaponIndex());
+            }
+        }
     }
 
     private void collectRewardDrop()

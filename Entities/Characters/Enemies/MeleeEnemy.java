@@ -21,7 +21,11 @@ public class MeleeEnemy extends Enemy{
     @Override
     public void update()
     {
-        this.solidArea = new Rectangle(xCoord, yCoord, overlay.tileSize, overlay.tileSize);
+        if (overlay == null)
+        {
+            return;
+        }
+
         double dx = overlay.player.xCoord - this.xCoord;
         double dy = overlay.player.yCoord - this.yCoord;
   
@@ -31,7 +35,9 @@ public class MeleeEnemy extends Enemy{
         this.xCoord += direction.x;
         this.yCoord += direction.y;
 
-        if(this.solidArea.intersects(overlay.player.solidArea))
+        Rectangle enemyBox = getSolidArea();
+        Rectangle playerBox = overlay.player.getSolidArea();
+        if(enemyBox != null && playerBox != null && enemyBox.intersects(playerBox))
         {
             overlay.player.takeDamage(1);
         }

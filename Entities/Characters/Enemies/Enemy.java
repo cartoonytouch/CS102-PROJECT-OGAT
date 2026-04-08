@@ -37,15 +37,22 @@ public abstract class Enemy extends GameCharacter {
 
     public void bindToOverlay(DynamicOverlay overlay)
     {
+        if (this.overlay == null)
+        {
+            this.xCoord = spawnGridX * overlay.tileSize;
+            this.yCoord = spawnGridY * overlay.tileSize;
+        }
+
         this.overlay = overlay;
-        this.xCoord = spawnGridX * overlay.tileSize;
-        this.yCoord = spawnGridY * overlay.tileSize;
-        this.solidArea = new Rectangle(
-            overlay.tileSize / 4,
-            overlay.tileSize / 3,
-            overlay.tileSize / 2,
-            overlay.tileSize / 2
-        );
+        if (this.solidArea == null)
+        {
+            this.solidArea = new Rectangle(
+                overlay.tileSize / 4,
+                overlay.tileSize / 3,
+                overlay.tileSize / 2,
+                overlay.tileSize / 2
+            );
+        }
     }
 
     @Override

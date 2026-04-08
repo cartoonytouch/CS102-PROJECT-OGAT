@@ -90,37 +90,38 @@ public class LongRangeEnemy extends Enemy {
     @Override
     public void update()
     {
-        if (!customImagesLoaded)
+        if (overlay == null)
         {
             return;
         }
 
-        spriteCounter++;
-        if (spriteCounter > 10)
+        if (customImagesLoaded)
         {
-            SpriteNum++;
-            if (SpriteNum >= idleBodyDown.length)
+            spriteCounter++;
+            if (spriteCounter > 10)
             {
-                SpriteNum = 0;
+                SpriteNum++;
+                if (SpriteNum >= idleBodyDown.length)
+                {
+                    SpriteNum = 0;
+                }
+                spriteCounter = 0;
             }
-            spriteCounter = 0;
         }
 
-        if(attackCooldown == 0)
+        long currentTime = System.currentTimeMillis();
+        if (startTime == 0)
         {
-            startTime = System.currentTimeMillis();
-        }
-        else
-        {
-            attackCooldown = System.currentTimeMillis() - startTime;
+            startTime = currentTime;
+            return;
         }
 
-        if(attackCooldown >= 5000)
+        if(currentTime - startTime >= 5000)
         {
-            attackCooldown = 0;
-            
+            startTime = currentTime;
             Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 10);
-            projectiles.add(p);
+            p.bindToOverlay(overlay);
+            overlay.currentRoom.projectiles.add(p);
         }
     }
 
