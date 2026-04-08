@@ -700,9 +700,12 @@ public class Player extends GameCharacter {
                 enemy.takeDamage(attackDamage);
                 damageAppliedForThisAttack = true;
 
-                if (enemy.health <= 0)
+                if (enemy.health <= 0 && overlay.currentRoom.localEnemies.size() > 0)
                 {
                     overlay.currentRoom.localEnemies.remove(i);
+                }
+                else if (overlay.currentRoom.localEnemies.size() <= 0) {
+                    return;
                 }
                 break;
             }

@@ -407,6 +407,7 @@ public void update()
 
         applyBrightnessFilter(g2);
         drawMinimap(g2);
+        drawInventory(g2);
         
         if (playerHeart != null)
         {
@@ -665,5 +666,32 @@ public void update()
                 }
             }
         });
+    }
+
+    public void drawInventory(Graphics2D g2) {
+        
+        int invWidth = 250;
+        int invHeight = 120;
+        int invX = screenWidth - invWidth - 20; 
+        int invY = screenHeight - invHeight - 20; 
+
+
+        g2.setColor(new Color(0, 0, 0, 180)); 
+        g2.fillRoundRect(invX, invY, invWidth, invHeight, 15, 15);
+
+  
+        g2.setColor(new Color(193, 166, 104)); 
+        g2.setStroke(new BasicStroke(3));
+        g2.drawRoundRect(invX, invY, invWidth, invHeight, 15, 15);
+
+        g2.setFont(new Font("Arial", Font.BOLD, 18));
+        g2.setColor(Color.WHITE);
+        g2.drawString("INVENTORY", invX + 15, invY + 30);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 16));
+        int itemY = invY + 60;
+        
+        g2.drawString("- Iron Sword", invX + 20, itemY);
+        g2.drawString("- Health Potion (x2)", invX + 20, itemY + 25);
     }
 }
