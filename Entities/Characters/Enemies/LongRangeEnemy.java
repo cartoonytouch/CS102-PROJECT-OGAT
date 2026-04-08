@@ -119,7 +119,7 @@ public class LongRangeEnemy extends Enemy {
         if(currentTime - startTime >= 5000)
         {
             startTime = currentTime;
-            Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 10);
+            Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 2);
             p.bindToOverlay(overlay);
             overlay.currentRoom.projectiles.add(p);
         }

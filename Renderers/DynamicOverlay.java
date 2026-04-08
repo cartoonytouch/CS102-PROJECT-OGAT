@@ -430,7 +430,7 @@ public void update()
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON); 
 
         int Nx = tileSize / 2; 
-        int Ny = tileSize + 20; 
+        int Ny = tileSize + 50; 
 
 
         g2.setColor(Color.YELLOW); 
@@ -683,7 +683,7 @@ public void update()
     public void drawInventory(Graphics2D g2) {
         
         int invWidth = 250;
-        int invHeight = 120;
+        int invHeight = 140;
         int invX = screenWidth - invWidth - 20; 
         int invY = screenHeight - invHeight - 20; 
 
@@ -707,7 +707,7 @@ public void update()
 
             if (player.getInventory().getItems()[i] != null) {
              
-                g2.drawString(player.getInventory().getItems()[i].getName(), invX + 20, itemY + 10*i);
+                g2.drawString(player.getInventory().getItems()[i].getName(), invX + 20, itemY + 20*i);
             }
         }
     }
