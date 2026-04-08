@@ -6,7 +6,7 @@ class NewGameMenu extends Menu {
 
     @Override
     protected void setButtons() {
-        image = loadImage("Assets/MenuAssets/newgamemenu3.png");
+        image = loadImage("Assets/MenuAssets/newgamemenu.png");
 
         buttons.add(new MenuButton(140, 390, 480, 50, () -> {
             System.out.println("Easy");
@@ -38,11 +38,11 @@ class NewGameMenu extends Menu {
             //GameEngine.setClass("Smasher");
         }));
         
-        buttons.add(new MenuButton(550, 780, 480, 70, () -> {
+        buttons.add(new MenuButton(560, 770, 480, 70, () -> {
             Game.switchMenu(new MainMenu());
         }));
 
-        buttons.add(new MenuButton(550, 680, 480, 70, () -> {
+        buttons.add(new MenuButton(560, 670, 480, 70, () -> {
             Game.switchMenu(new StoryScreen());
         }));
     }

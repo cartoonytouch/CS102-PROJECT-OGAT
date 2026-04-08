@@ -11,7 +11,7 @@ public class StoryScreen extends Menu {
     private final int MAX_TICKS = 200;
     private Timer timer;
     
-    private String storyText = "The kingdom has fallen.";
+    private String storyText = "The king has failed to consider his subjects and his greed has led the kindgom to ruin.";
 
     public StoryScreen() {
         super();
