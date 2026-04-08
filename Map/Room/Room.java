@@ -2,6 +2,7 @@ package Map.Room;
 import java.util.Random;
 
 import Entities.FloorObjects;
+import Entities.Projectile;
 import Entities.Characters.Player;
 import Entities.Characters.Enemies.Enemy;
 import Entities.Characters.Enemies.LongRangeEnemy;
@@ -50,6 +51,7 @@ public class Room {
     public List<Door> placedDoors = new ArrayList<>();
     public List<Pit> placedPits = new ArrayList<>();
     public List<Station> placedStations = new ArrayList<>();
+    public List<Projectile> projectiles = new ArrayList<>();
     private RewardDrop rewardDrop;
     private boolean spawnedRewards;
 

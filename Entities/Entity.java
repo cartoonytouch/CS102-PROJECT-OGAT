@@ -4,6 +4,8 @@ import java.awt.Rectangle;
 
 import Interfaces.Updatable;
 
+import HelperClasses.Vector2D;
+
 
 
 public abstract class Entity implements Updatable {

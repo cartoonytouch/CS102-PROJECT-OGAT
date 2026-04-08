@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import Entities.Heart;
+import Entities.Projectile;
 import Entities.Characters.Player;
 import Entities.Characters.Enemies.Enemy;
 import HelperClasses.KeyHandler;
@@ -245,7 +246,6 @@ public void update()
 
     if (currentRoom != null)
     {
-        bindCurrentRoomEnemies();
         currentRoom.checkCleared(player);
 
         for (Enemy enemy : currentRoom.localEnemies)
@@ -340,6 +340,11 @@ public void update()
 
         player.draw(g2);
         drawMinimap(g2);
+        for (Projectile p : currentRoom.projectiles)
+        {
+            p.draw(g2);
+        }
+        
         if (playerHeart != null)
         {
             playerHeart.draw(g2);

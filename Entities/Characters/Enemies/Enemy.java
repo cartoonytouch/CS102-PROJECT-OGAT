@@ -11,6 +11,8 @@ import javax.imageio.ImageIO;
 import Entities.Characters.GameCharacter;
 import Renderers.DynamicOverlay;
 
+import HelperClasses.Vector2D;
+
 public abstract class Enemy extends GameCharacter {
 
     public int attackPattern;

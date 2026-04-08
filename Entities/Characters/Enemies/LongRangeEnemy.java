@@ -4,13 +4,21 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+
+import Entities.Projectile;
 
 public class LongRangeEnemy extends Enemy {
 
     private static boolean customImagesLoaded = false;
     private static boolean attemptedLoad = false;
+
+    long startTime;
+    long attackCooldown = 0;
+
+    public ArrayList<Projectile> projectiles = new ArrayList<>();
 
     private static final BufferedImage[] idleBodyDown = new BufferedImage[3];
     private static final BufferedImage[] idlePantDown = new BufferedImage[3];
@@ -96,6 +104,23 @@ public class LongRangeEnemy extends Enemy {
                 SpriteNum = 0;
             }
             spriteCounter = 0;
+        }
+
+        if(attackCooldown == 0)
+        {
+            startTime = System.currentTimeMillis();
+        }
+        else
+        {
+            attackCooldown = System.currentTimeMillis() - startTime;
+        }
+
+        if(attackCooldown >= 5000)
+        {
+            attackCooldown = 0;
+            
+            Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 10);
+            projectiles.add(p);
         }
     }
 
