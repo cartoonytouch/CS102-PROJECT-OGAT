@@ -3,6 +3,7 @@ package Menus;
 import java.awt.*;
 
 import javax.swing.JTextField;
+import Renderers.DifficultyProgress;
 
 class NewGameMenu extends Menu {
 
@@ -72,6 +73,13 @@ class NewGameMenu extends Menu {
         super.paintComponent(g);
         
         Graphics2D g2 = (Graphics2D) g;
+
+        if (!DifficultyProgress.isMediumBeaten)
+        {
+            g2.setColor(new Color(0, 0, 0, 200));
+            g2.fillRect(140, 570, 480, 50);
+        }
+        
         g2.setStroke(new BasicStroke(5));
         g2.setColor(new Color(255, 215, 0, 150));
 

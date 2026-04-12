@@ -17,6 +17,7 @@ public class Game {
     public static Room[][] mapGrid;
     public static String testSeed = "0";
     private static String selectedPlayerClass = "Swordsman";
+    private static String selectedDifficulty = "Easy";
     public static Sound sound = new Sound();
     public static int currentMusic = -1;
 
@@ -233,4 +234,5 @@ public class Game {
         sound.loop();
         currentMusic = i;
     }
+    
 }
