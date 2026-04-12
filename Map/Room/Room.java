@@ -16,10 +16,13 @@ import Entities.StaticEntities.Tile;
 import Entities.StaticEntities.Wall;
 import Items.Item;
 import Items.ItemCatalog;
+import MusicsandSounds.Sound;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import Menus.Game;
 
 
 public class Room {
@@ -27,6 +30,9 @@ public class Room {
     public FloorObjects[][] localFloorGrid;
     public StaticEntity[][] localObjectGrid;
     public int[][] localMiniGrid;
+
+    private int currentMusic = Game.currentMusic;
+    Sound sound = Game.sound;
     
 
     // dimensions and the absolute location of 
@@ -585,6 +591,30 @@ public class Room {
             return 3;
         }
         return 4;
+    }
+    public void playMusic(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+    public void playSoundEffect(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+    }
+    public void playDifferentMusic(int i)
+    {
+        if(currentMusic == i)
+        {
+            return;
+        }
+        sound.stop();
+        sound.close();
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+        currentMusic = i;
     }
 
     // we will render Tiles first, and then add Pits, and then the RoomObjects

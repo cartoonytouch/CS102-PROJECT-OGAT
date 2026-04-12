@@ -1,6 +1,9 @@
 package Menus;
 
 import javax.swing.*;
+
+import MusicsandSounds.Sound;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.*;
@@ -16,6 +19,8 @@ abstract class Menu extends JPanel {
     protected java.util.List<MenuButton> buttons = new ArrayList<>();
 
     protected Point mousePos = new Point(0, 0);
+
+    Sound sound = new Sound();
 
     public Menu() {
         setLayout(null);
@@ -72,6 +77,7 @@ abstract class Menu extends JPanel {
         for (MenuButton b : buttons) {
             if (b.bounds.contains(p)) {
                 b.onClick.run();
+                playSoundEffect(10);
             }
         }
     }
@@ -109,5 +115,25 @@ abstract class Menu extends JPanel {
                 g2.fillRect(b.bounds.x, b.bounds.y, b.bounds.width, b.bounds.height);
             }
         }
+    }
+    public void playMusic(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+    public void playSoundEffect(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+    }
+    public void playDifferentMusic(int i)
+    {
+        System.out.println("Music changed");
+        sound.stop();
+        sound.close();
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
     }
 }
