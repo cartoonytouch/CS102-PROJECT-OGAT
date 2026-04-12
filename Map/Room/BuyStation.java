@@ -11,6 +11,7 @@ import Items.Item;
 import Items.ItemCatalog;
 import Items.Passive;
 import Items.Weapons.Weapon;
+import MusicsandSounds.Sound;
 
 public class BuyStation extends Station {
 
@@ -20,6 +21,8 @@ public class BuyStation extends Station {
     private final List<Item> offerItems = new ArrayList<>();
     private final List<Integer> offerPrices = new ArrayList<>();
     private boolean offersGenerated;
+
+    Sound sound = new Sound();
 
     public BuyStation(int coordX, int coordY, Random random)
     {
@@ -208,6 +211,7 @@ public class BuyStation extends Station {
         player.discoverItem(item);
         player.changeCurrency(price);
         offerItems.set(slotIndex, null);
+        playSoundEffect(9);
         return "Purchased " + item.getName() + ".";
     }
 
@@ -216,5 +220,24 @@ public class BuyStation extends Station {
     {
         ensureOffers(player);
         return "Opened Buy Station.";
+    }
+    public void playMusic(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+    public void playSoundEffect(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+    }
+    public void playDifferentMusic(int i)
+    {
+        sound.stop();
+        sound.close();
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
     }
 }

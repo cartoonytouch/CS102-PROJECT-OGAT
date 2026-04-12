@@ -116,12 +116,23 @@ public class LongRangeEnemy extends Enemy {
             return;
         }
 
-        if(currentTime - startTime >= 5000)
+        if(currentTime - startTime >= 2000)
         {
+            double rng = Math.random();
             startTime = currentTime;
-            Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 2);
-            p.bindToOverlay(overlay);
-            overlay.currentRoom.projectiles.add(p);
+
+            if(rng <0.20)
+            {
+                Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 2,"CYAN");
+                p.bindToOverlay(overlay);
+                overlay.currentRoom.projectiles.add(p);
+            }
+            else if(rng >= 0.20 && rng < 1)
+            {
+                Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 2,"RED");
+                p.bindToOverlay(overlay);
+                overlay.currentRoom.projectiles.add(p);
+            }
         }
     }
 
