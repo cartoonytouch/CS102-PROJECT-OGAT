@@ -32,6 +32,7 @@ import Items.Weapons.Sword;
 import Items.Weapons.Weapon;
 import Map.Room.RewardDrop;
 import Map.Room.Station;
+import MusicsandSounds.Sound;
 import Renderers.DynamicOverlay;
 
 public class Player extends GameCharacter {
@@ -44,6 +45,8 @@ public class Player extends GameCharacter {
 
     public final int screenX;
     public final int screenY;
+
+    Sound sound = new Sound();
 
     public boolean canStun;
 
@@ -609,6 +612,7 @@ public class Player extends GameCharacter {
         {
             weapon.swing();
             isAttacking = true;
+            playSoundEffect(3);
             
             attackCounter = 0;
             damageAppliedForThisAttack = false;
@@ -715,7 +719,18 @@ public class Player extends GameCharacter {
     @Override
     public void takeDamage(int amount)
     {
-        if (amount <= 0 || health <= 0 || isInvisible || isParrying)
+        if (amount <= 0 || health <= 0)
+        {
+            return;
+        }
+
+        if (isParrying)
+        {
+            playSoundEffect(10);
+            return;
+        }
+
+        if (isInvisible)
         {
             return;
         }
@@ -1552,5 +1567,24 @@ public class Player extends GameCharacter {
         inventory.add(itemReward);
         discoverItem(itemReward);
         overlay.currentRoom.clearRewardDrop();
+    }
+    public void playMusic(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+    public void playSoundEffect(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+    }
+    public void playDifferentMusic(int i)
+    {
+        sound.stop();
+        sound.close();
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
     }
 }

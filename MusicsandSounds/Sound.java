@@ -20,9 +20,9 @@ public class Sound {
         soundURL[3] = getClass().getResource("attackSound.wav");
         soundURL[4] = getClass().getResource("enemyDeath1.wav");
         soundURL[5] = getClass().getResource("enemyDeath2.wav");
-        soundURL[6] = getClass().getResource("enemyDeath2.wav");
-        soundURL[7] = getClass().getResource("enemyDeath2.wav");
-        soundURL[8] = getClass().getResource("enemyDeath2.wav");
+        soundURL[6] = getClass().getResource("click.wav");
+        soundURL[7] = getClass().getResource("fail.wav");
+        soundURL[8] = getClass().getResource("win.wav");
         soundURL[9] = getClass().getResource("purchase.wav");
         soundURL[10] = getClass().getResource("parryfinal.wav");
         soundURL[11] = getClass().getResource("magic1.wav");

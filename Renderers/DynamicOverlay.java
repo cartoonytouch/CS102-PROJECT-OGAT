@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import Menus.Game;
+import MusicsandSounds.Sound;
 import Entities.Heart;
 import Entities.Projectile;
 import Entities.Characters.Player;
@@ -40,6 +41,10 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
     final int originalTileSize = 16;
     final int scale = 5;
+
+    Sound effectSound = new Sound();
+    Sound music = new Sound();
+    public int currentMusic = -1;
 
     public final int tileSize = originalTileSize * scale;
     public final int maxScreenCol = 13;
@@ -134,6 +139,12 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
         bindCurrentRoomEnemies();
         revealRooms();
+
+        Game.sound.stop();
+        Game.sound.close();
+        Game.currentMusic = -1;
+        playDifferentMusic(12);
+
     }
 
     public void changeRoom(int targetX, int targetY, String direction)
@@ -160,6 +171,18 @@ public class DynamicOverlay extends JPanel implements Runnable {
             roomRenderer.setActiveRoom(currentRoom);
             bindCurrentRoomEnemies();
             revealRooms();
+        if (currentRoom.type.equals("Boss")) {
+            System.out.println(currentMusic + " Boss");
+            playDifferentMusic(2);
+            System.out.println("Boss music!");
+            System.out.println(currentMusic + " Boss");
+        } 
+        else {
+            System.out.println(currentMusic + " Normal");
+            playDifferentMusic(12);
+            System.out.println("Room music!");
+            System.out.println(currentMusic + " Normal");
+        }
 
             int roomPixelWidth = currentRoom.width * tileSize;
             int roomPixelHeight = currentRoom.height * tileSize;
@@ -582,12 +605,22 @@ public void update()
         stationMenuOverlay.close();
         deathSeedField.setText(mapSeed);
         deathSeedField.setVisible(true);
+        Game.sound.stop();
+        Game.sound.close();
+        music.stop();
+        music.close();
+        playSoundEffect(7);
     }
 
     public void bossDead()
     {
         gameState = GameState.BOSS_DEFEATED;
         stationMenuOverlay.close();
+        Game.sound.stop();
+        Game.sound.close();
+        music.close();
+        music.stop();
+        playSoundEffect(8);
 
     }
 
@@ -777,5 +810,29 @@ public void update()
                 g2.drawString(player.getInventory().getItems()[i].getName(), invX + 20, itemY + 20*i);
             }
         }
+    }
+    public void playMusic(int i)
+    {
+        music.setFile(i);
+        music.play();
+        music.loop();
+    }
+    public void playSoundEffect(int i)
+    {
+        effectSound.setFile(i);
+        effectSound.play();
+    }
+    public void playDifferentMusic(int i)
+    {
+        if(currentMusic == i)
+        {
+            return;
+        }
+        music.stop();
+        music.close();
+        music.setFile(i);
+        music.play();
+        music.loop();
+        currentMusic = i;
     }
 }

@@ -5,6 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import Map.mapGenerator;
 import Map.Room.Room;
+import MusicsandSounds.Sound;
 import Renderers.DynamicOverlay;
 import Renderers.MenuBridge;
 import Renderers.GameData;
@@ -16,6 +17,8 @@ public class Game {
     public static Room[][] mapGrid;
     public static String testSeed = "0";
     private static String selectedPlayerClass = "Swordsman";
+    public static Sound sound = new Sound();
+    public static int currentMusic = -1;
 
     public static void main(String[] args) {
         MenuBridge.registerPauseMenuOpener(gamePanel -> Game.switchMenu(new PauseMenu(gamePanel)));
@@ -36,6 +39,16 @@ public class Game {
         frame.revalidate();
         frame.repaint();
         panel.requestFocusInWindow();
+        System.out.println(panel.getClass().getName());
+
+        // if(panel.getClass().getName().equals("Renderers.DynamicOverlay"))
+        // {
+        //     playDifferentMusic(12);
+        // }
+        if(panel.getClass().getName().equals("Menus.MainMenu") || panel.getClass().getName().equals("Menus.NewGameMenu"))
+        {
+            playDifferentMusic(0);
+        }
     }
 
     public static void startGame() {
@@ -195,5 +208,29 @@ public class Game {
     public static void quitApplication()
     {
         System.exit(0);
+    }
+        public static void playMusic(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+    public static void playSoundEffect(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+    }
+    public static void playDifferentMusic(int i)
+    {
+        if(currentMusic == i)
+        {
+            return;
+        }
+        sound.stop();
+        sound.close();
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+        currentMusic = i;
     }
 }
