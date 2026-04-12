@@ -27,6 +27,7 @@ public class LongRangeEnemy extends Enemy {
     private static final BufferedImage[] idlePatchDown = new BufferedImage[3];
     private static final BufferedImage[] idleBeardDown = new BufferedImage[3];
     private static final BufferedImage[] idleEyesDown = new BufferedImage[3];
+    public BufferedImage longRangeMonster;
 
     public LongRangeEnemy(int gridX, int gridY)
     {
@@ -41,30 +42,9 @@ public class LongRangeEnemy extends Enemy {
 
     private void loadCustomSprites()
     {
-        if (attemptedLoad)
-        {
-            return;
-        }
-
-        attemptedLoad = true;
-
         try
         {
-            BufferedImage idleBody = ImageIO.read(new File("Assets/EnemyAssets/LongRangeEnemy/idle/body.png"));
-            BufferedImage idlePant = ImageIO.read(new File("Assets/EnemyAssets/LongRangeEnemy/idle/pant.png"));
-            BufferedImage idleHead = ImageIO.read(new File("Assets/EnemyAssets/LongRangeEnemy/idle/head.png"));
-            BufferedImage idleShirt = ImageIO.read(new File("Assets/EnemyAssets/LongRangeEnemy/idle/shirt.png"));
-            BufferedImage idlePatch = ImageIO.read(new File("Assets/EnemyAssets/LongRangeEnemy/idle/Eyepatch.png"));
-            BufferedImage idleBeard = ImageIO.read(new File("Assets/EnemyAssets/LongRangeEnemy/idle/beard.png"));
-            BufferedImage idleEyes = ImageIO.read(new File("Assets/EnemyAssets/LongRangeEnemy/idle/eyes.png"));
-
-            populateFrames(idleBody, idleBodyDown);
-            populateFrames(idlePant, idlePantDown);
-            populateFrames(idleHead, idleHeadDown);
-            populateFrames(idleShirt, idleShirtDown);
-            populateFrames(idlePatch, idlePatchDown);
-            populateFrames(idleBeard, idleBeardDown);
-            populateFrames(idleEyes, idleEyesDown);
+            longRangeMonster = ImageIO.read(new File("Assets/EnemyAssets/LongRangeEnemy/LongRangeMonster.png"));
 
             customImagesLoaded = true;
         }
@@ -74,18 +54,6 @@ public class LongRangeEnemy extends Enemy {
         }
     }
 
-    private void populateFrames(BufferedImage sheet, BufferedImage[] targetFrames)
-    {
-        int frameCount = targetFrames.length;
-        int frameWidth = sheet.getWidth() / frameCount;
-        int frameHeight = sheet.getHeight() / 4;
-        int rowOffset = 2 * frameHeight;
-
-        for (int i = 0; i < frameCount; i++)
-        {
-            targetFrames[i] = sheet.getSubimage(i * frameWidth, rowOffset, frameWidth, frameHeight);
-        }
-    }
 
     @Override
     public void update()
@@ -116,7 +84,7 @@ public class LongRangeEnemy extends Enemy {
             return;
         }
 
-        if(currentTime - startTime >= 5000)
+        if(currentTime - startTime >= 2000)
         {
             startTime = currentTime;
             Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 2);
@@ -134,15 +102,8 @@ public class LongRangeEnemy extends Enemy {
             return;
         }
 
-        int frameIndex = Math.max(0, Math.min(SpriteNum, idleBodyDown.length - 1));
-
-        drawLayer(g2, idleBodyDown[frameIndex]);
-        drawLayer(g2, idleHeadDown[frameIndex]);
-        drawLayer(g2, idleEyesDown[frameIndex]);
-        drawLayer(g2, idleBeardDown[frameIndex]);
-        drawLayer(g2, idleShirtDown[frameIndex]);
-        drawLayer(g2, idlePantDown[frameIndex]);
-        drawLayer(g2, idlePatchDown[frameIndex]);
+        drawLayer(g2, longRangeMonster);
+    
     }
 
     private void drawLayer(Graphics2D g2, BufferedImage layer)

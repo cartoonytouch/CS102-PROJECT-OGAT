@@ -8,19 +8,19 @@ public class Passive extends Item {
 
         if (id.equals("21"))
         {
-            this.name = "Health Passive";
+            this.name = "Inventory Passive";
         }
         else if (id.equals("22"))
         {
-            this.name = "Mana Passive";
+            this.name = "Strength Passive";
         }
         else if (id.equals("23"))
         {
-            this.name = "Strength Passive";
+            this.name = "Attack Speed Passive";
         }
         else if (id.equals("24"))
         {
-            this.name = "Haste Passive";
+            this.name = "Strength Passive";
         }
         else if (id.equals("25"))
         {
