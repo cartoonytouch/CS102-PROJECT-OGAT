@@ -25,6 +25,7 @@ import Menus.Game;
 import Entities.Heart;
 import Entities.Projectile;
 import Entities.Characters.Player;
+import Entities.Characters.Enemies.Boss;
 import Entities.Characters.Enemies.Enemy;
 import HelperClasses.KeyHandler;
 import Map.mapGenerator;
@@ -51,9 +52,10 @@ public class DynamicOverlay extends JPanel implements Runnable {
     public int curGridY;
     public Heart playerHeart;
     public boolean gameOver = false;
+    public boolean bossDead = false;
 
     public enum GameState {
-        RUNNING, PAUSED, GAME_OVER
+        RUNNING, PAUSED, GAME_OVER, BOSS_DEFEATED
     }
 
     private GameState gameState = GameState.RUNNING;
@@ -260,6 +262,21 @@ public void update()
         return;
     }
 
+    if(gameState == GameState.BOSS_DEFEATED)
+    {
+        if (keyH.rPressed)
+        {
+            keyH.reset();
+            returnToNewGameMenu();
+        }
+        else if (keyH.qPressed)
+        {
+            keyH.reset();
+            quitFromGameOver();
+        }
+        return;
+    }
+
     if (stationMenuOverlay.isOpen())
     {
         if (keyH.escPressed)
@@ -307,6 +324,20 @@ public void update()
         // }
 
         updateProjectiles();
+
+                for (int i = 0; i < currentRoom.localEnemies.size(); i++)
+        {
+            if(currentRoom.localEnemies.get(i) instanceof Boss)
+            {
+                if(currentRoom.localEnemies.get(i).health <= 0)
+                {
+                    bossDead = true;
+                    gameState = GameState.BOSS_DEFEATED;
+                }
+            }
+        }
+
+
     }
 }
 
@@ -447,7 +478,30 @@ public void update()
         {
             drawGameOverOverlay(g2);
         }
+
+        if (bossDead || gameState == GameState.BOSS_DEFEATED)
+        {
+            drawBossDefeatedOverlay(g2);
+        }
         g2.dispose();
+    }
+
+    private void drawBossDefeatedOverlay(Graphics2D g2) {
+
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRect(0, 0, getWidth(), getHeight());
+
+        g2.setFont(new Font("Arial", Font.BOLD, 80));
+        g2.setColor(Color.WHITE);
+        String title = "YOU WON";
+        int titleX = (getWidth() / 2) - 220;
+        int titleY = getHeight() / 2;
+        g2.drawString(title, titleX, titleY);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 20));
+        g2.drawString("Press R for New Game", titleX + 95, titleY + 45);
+        g2.drawString("Press Q to Quit", titleX + 125, titleY + 78);
+        g2.drawString("Current Seed (select and copy manually):", titleX - 20, titleY + 122);
     }
 
     public void bindCurrentRoomEnemies()
@@ -528,6 +582,13 @@ public void update()
         stationMenuOverlay.close();
         deathSeedField.setText(mapSeed);
         deathSeedField.setVisible(true);
+    }
+
+    public void bossDead()
+    {
+        gameState = GameState.BOSS_DEFEATED;
+        stationMenuOverlay.close();
+
     }
 
     public void saveGame()
