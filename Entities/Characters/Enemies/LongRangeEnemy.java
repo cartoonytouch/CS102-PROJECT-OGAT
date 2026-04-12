@@ -32,7 +32,7 @@ public class LongRangeEnemy extends Enemy {
     public LongRangeEnemy(int gridX, int gridY)
     {
         super(gridX, gridY);
-        health = 1;
+        health = 30;
         detectionRange = 0;
         attackPattern = 2;
         direction = "down";

@@ -80,7 +80,7 @@ public class Projectile extends Entity {
     public void update() {
         if (!active || overlay == null) return;
     
-            if(this.type.equals("RED"))
+            if(this.type.equals("RED") || this.type.equals("BLUE"))
             {
                 preciseX += direction.x * spped;
                 preciseY += direction.y * spped;

@@ -105,7 +105,7 @@ public class Boss extends Enemy{
 
     public void spawnProjectile()
     {
-        Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 2,"RED");
+        Projectile p = new Projectile(xCoord, yCoord, 8, overlay.player, 3,"BLUE");
         p.bindToOverlay(overlay);
         overlay.currentRoom.projectiles.add(p);
     }

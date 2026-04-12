@@ -7,7 +7,7 @@ import java.awt.*;
 public class MeleeEnemy extends Enemy{
     public MeleeEnemy(int gridX, int gridY){
         super(gridX, gridY);
-        health = 1;
+        health = 50;
         detectionRange = Integer.MAX_VALUE;
         attackPattern = 1;
         spped = 1;
