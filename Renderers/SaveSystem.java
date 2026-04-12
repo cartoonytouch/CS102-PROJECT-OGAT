@@ -104,7 +104,6 @@ public class SaveSystem {
         data.playerMana = game.player.mana;
         data.playerCurrency = game.player.currency;
         data.playerClass = game.player.getPlayerClass();
-        data.difficulty = game.player.getDifficulty();
         data.discoveredItemIds = game.player.getDiscoveredItemIds().toArray(new String[0]);
 
         if (game.player.getInventory() != null)
@@ -427,7 +426,7 @@ public class SaveSystem {
 
     private static boolean isValidGrid(Room[][] mapGrid, int gridX, int gridY)
     {
-        return mapGrid != null  
+        return mapGrid != null
             && gridX >= 0
             && gridY >= 0
             && gridX < mapGrid.length

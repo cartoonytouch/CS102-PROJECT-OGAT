@@ -12,8 +12,6 @@ public class GameData {
     public int choosedWeaponIndex;
     public String playerClass;
     public String[] discoveredItemIds;
-    public String difficulty;
-
 
     public int gridX;
     public int gridY;

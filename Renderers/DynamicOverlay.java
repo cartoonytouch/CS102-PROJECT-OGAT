@@ -22,10 +22,10 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import Menus.Game;
-import MusicsandSounds.Sound;
 import Entities.Heart;
 import Entities.Projectile;
 import Entities.Characters.Player;
+import Entities.Characters.Enemies.Boss;
 import Entities.Characters.Enemies.Enemy;
 import HelperClasses.KeyHandler;
 import Map.mapGenerator;
@@ -37,7 +37,6 @@ public class DynamicOverlay extends JPanel implements Runnable {
     private static final int MINIMAP_TILE_SIZE = 26;
     private static final int MINIMAP_PADDING = 12;
     private static final int MINIMAP_MARGIN = 18;
-    public int currentMusic = 12;
 
     final int originalTileSize = 16;
     final int scale = 5;
@@ -48,16 +47,15 @@ public class DynamicOverlay extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
 
-    Sound sound = Game.sound;
-
     public Room[][] mapGrid;
     public int curGridX;
     public int curGridY;
     public Heart playerHeart;
     public boolean gameOver = false;
+    public boolean bossDead = false;
 
     public enum GameState {
-        RUNNING, PAUSED, GAME_OVER
+        RUNNING, PAUSED, GAME_OVER, BOSS_DEFEATED
     }
 
     private GameState gameState = GameState.RUNNING;
@@ -84,10 +82,10 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
     public DynamicOverlay(Room[][] grid, Room startRoom)
     {
-        this(grid, startRoom, "0", "Swordsman","Easy");
+        this(grid, startRoom, "0", "Swordsman");
     }
 
-    public DynamicOverlay(Room[][] grid, Room startRoom, String mapSeed, String playerClass, String difficulty)
+    public DynamicOverlay(Room[][] grid, Room startRoom, String mapSeed, String playerClass)
     {
         this.mapSeed = (mapSeed == null || mapSeed.isBlank()) ? "0" : mapSeed;
         this.mapGrid = grid;
@@ -95,7 +93,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
         this.curGridY = startRoom.gridY;
         this.currentRoom = startRoom;
         this.playerHeart = new Heart(this);
-        this.player = new Player(this, keyH, playerClass, difficulty);
+        this.player = new Player(this, keyH, playerClass);
 
         if (this.currentRoom != null)
         {
@@ -162,20 +160,6 @@ public class DynamicOverlay extends JPanel implements Runnable {
             roomRenderer.setActiveRoom(currentRoom);
             bindCurrentRoomEnemies();
             revealRooms();
-
-        if (currentRoom.type.equals("Boss")) {
-            System.out.println(currentMusic + " Boss");
-            playDifferentMusic(2);
-            System.out.println("Boss music!");
-            System.out.println(currentMusic + " Boss");
-        } 
-        else {
-            System.out.println(currentMusic + " Normal");
-            playDifferentMusic(12);
-            System.out.println("Room music!");
-            System.out.println(currentMusic + " Normal");
-        }
-
 
             int roomPixelWidth = currentRoom.width * tileSize;
             int roomPixelHeight = currentRoom.height * tileSize;
@@ -278,6 +262,21 @@ public void update()
         return;
     }
 
+    if(gameState == GameState.BOSS_DEFEATED)
+    {
+        if (keyH.rPressed)
+        {
+            keyH.reset();
+            returnToNewGameMenu();
+        }
+        else if (keyH.qPressed)
+        {
+            keyH.reset();
+            quitFromGameOver();
+        }
+        return;
+    }
+
     if (stationMenuOverlay.isOpen())
     {
         if (keyH.escPressed)
@@ -325,6 +324,20 @@ public void update()
         // }
 
         updateProjectiles();
+
+                for (int i = 0; i < currentRoom.localEnemies.size(); i++)
+        {
+            if(currentRoom.localEnemies.get(i) instanceof Boss)
+            {
+                if(currentRoom.localEnemies.get(i).health <= 0)
+                {
+                    bossDead = true;
+                    gameState = GameState.BOSS_DEFEATED;
+                }
+            }
+        }
+
+
     }
 }
 
@@ -465,7 +478,30 @@ public void update()
         {
             drawGameOverOverlay(g2);
         }
+
+        if (bossDead || gameState == GameState.BOSS_DEFEATED)
+        {
+            drawBossDefeatedOverlay(g2);
+        }
         g2.dispose();
+    }
+
+    private void drawBossDefeatedOverlay(Graphics2D g2) {
+
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRect(0, 0, getWidth(), getHeight());
+
+        g2.setFont(new Font("Arial", Font.BOLD, 80));
+        g2.setColor(Color.WHITE);
+        String title = "YOU WON";
+        int titleX = (getWidth() / 2) - 220;
+        int titleY = getHeight() / 2;
+        g2.drawString(title, titleX, titleY);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 20));
+        g2.drawString("Press R for New Game", titleX + 95, titleY + 45);
+        g2.drawString("Press Q to Quit", titleX + 125, titleY + 78);
+        g2.drawString("Current Seed (select and copy manually):", titleX - 20, titleY + 122);
     }
 
     public void bindCurrentRoomEnemies()
@@ -546,6 +582,13 @@ public void update()
         stationMenuOverlay.close();
         deathSeedField.setText(mapSeed);
         deathSeedField.setVisible(true);
+    }
+
+    public void bossDead()
+    {
+        gameState = GameState.BOSS_DEFEATED;
+        stationMenuOverlay.close();
+
     }
 
     public void saveGame()
@@ -734,29 +777,5 @@ public void update()
                 g2.drawString(player.getInventory().getItems()[i].getName(), invX + 20, itemY + 20*i);
             }
         }
-    }
-    public void playMusic(int i)
-    {
-        sound.setFile(i);
-        sound.play();
-        sound.loop();
-    }
-    public void playSoundEffect(int i)
-    {
-        sound.setFile(i);
-        sound.play();
-    }
-    public void playDifferentMusic(int i)
-    {
-        if(currentMusic == i)
-        {
-            return;
-        }
-        sound.stop();
-        sound.close();
-        sound.setFile(i);
-        sound.play();
-        sound.loop();
-        currentMusic = i;
     }
 }

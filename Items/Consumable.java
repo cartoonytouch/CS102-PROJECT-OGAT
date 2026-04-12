@@ -16,7 +16,7 @@ public class Consumable extends Item {
         }
         else if (id.equals("13"))
         {
-            this.name = "Attack Consumable";
+            this.name = "Coin Bag Consumable";
         }
         else if (id.equals("14"))
         {
@@ -24,7 +24,7 @@ public class Consumable extends Item {
         }
         else if (id.equals("15"))
         {
-            this.name = "Speed Consumable";
+            this.name = "Mana Consumable";
         }
     }
 

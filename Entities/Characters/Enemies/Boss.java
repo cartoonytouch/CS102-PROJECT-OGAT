@@ -3,7 +3,12 @@ package Entities.Characters.Enemies;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
+
+import javax.imageio.ImageIO;
 
 import java.util.ArrayList;
 
@@ -14,6 +19,8 @@ import HelperClasses.Vector2D;
 public class Boss extends Enemy{
 
     Random rng;
+
+    BufferedImage crownBoss;
     
     long startTime;
     long attackCooldown = 0;
@@ -30,6 +37,18 @@ public class Boss extends Enemy{
         attackPattern = 2;
 
         this.rng = new Random();
+        loadFiles();
+    }
+
+    public void loadFiles()
+    {
+        try
+        {
+            crownBoss = ImageIO.read(new File("Assets/EnemyAssets/Boss/crownBoss.png"));
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Failed to load placeholder enemy sprites", e);
+        }
     }
 
     @Override
@@ -80,11 +99,13 @@ public class Boss extends Enemy{
     public void killBoss()
     {
         overlay.currentRoom.removeEnemyFromRoom(this);
+        overlay.bossDead();
+        return;
     }
 
     public void spawnProjectile()
     {
-        Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 2,"RED");
+        Projectile p = new Projectile(xCoord, yCoord, 5, overlay.player, 2);
         p.bindToOverlay(overlay);
         overlay.currentRoom.projectiles.add(p);
     }
@@ -150,19 +171,23 @@ public class Boss extends Enemy{
         }
 
         int size = overlay.tileSize;
-        g2.setColor(new Color(85, 0, 0));
-        g2.fillOval(xCoord, yCoord, size, size);
 
-        g2.setColor(new Color(170, 20, 20));
-        g2.fillOval(xCoord + (size / 8), yCoord + (size / 8), (size * 3) / 4, (size * 3) / 4);
+        g2.drawImage(crownBoss, xCoord, yCoord, overlay);
 
-        g2.setColor(Color.WHITE);
-        g2.fillOval(xCoord + (size / 3), yCoord + (size / 3), size / 8, size / 8);
-        g2.fillOval(xCoord + (size / 2), yCoord + (size / 3), size / 8, size / 8);
 
-        g2.setColor(Color.BLACK);
-        g2.fillOval(xCoord + (size / 3) + 4, yCoord + (size / 3) + 2, size / 16, size / 16);
-        g2.fillOval(xCoord + (size / 2) + 4, yCoord + (size / 3) + 2, size / 16, size / 16);
+        // g2.setColor(new Color(85, 0, 0));
+        // g2.fillOval(xCoord, yCoord, size, size);
+
+        // g2.setColor(new Color(170, 20, 20));
+        // g2.fillOval(xCoord + (size / 8), yCoord + (size / 8), (size * 3) / 4, (size * 3) / 4);
+
+        // g2.setColor(Color.WHITE);
+        // g2.fillOval(xCoord + (size / 3), yCoord + (size / 3), size / 8, size / 8);
+        // g2.fillOval(xCoord + (size / 2), yCoord + (size / 3), size / 8, size / 8);
+
+        // g2.setColor(Color.BLACK);
+        // g2.fillOval(xCoord + (size / 3) + 4, yCoord + (size / 3) + 2, size / 16, size / 16);
+        // g2.fillOval(xCoord + (size / 2) + 4, yCoord + (size / 3) + 2, size / 16, size / 16);
 
         int barWidth = size;
         int barHeight = 8;

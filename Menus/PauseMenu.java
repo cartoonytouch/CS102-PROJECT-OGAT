@@ -29,7 +29,6 @@ public class PauseMenu extends Menu{
             gamePanel.saveGame();
             gamePanel.stopGameThread();
             Game.switchMenu(new MainMenu());
-  //          playDifferentMusic(0);
         }));
     }
 }
