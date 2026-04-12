@@ -1,10 +1,14 @@
 package Menus;
 
 import javax.swing.*;
+
+import Entities.Characters.Player;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 import Map.mapGenerator;
 import Map.Room.Room;
+import MusicsandSounds.Sound;
 import Renderers.DynamicOverlay;
 import Renderers.MenuBridge;
 import Renderers.GameData;
@@ -16,6 +20,9 @@ public class Game {
     public static Room[][] mapGrid;
     public static String testSeed = "0";
     private static String selectedPlayerClass = "Swordsman";
+    private static String selectedDifficulty = "Easy";
+    public static Sound sound = new Sound();
+    public static int currentMusic = -1;
 
     public static void main(String[] args) {
         MenuBridge.registerPauseMenuOpener(gamePanel -> Game.switchMenu(new PauseMenu(gamePanel)));
@@ -36,11 +43,25 @@ public class Game {
         frame.revalidate();
         frame.repaint();
         panel.requestFocusInWindow();
+        System.out.println(panel.getClass().getName());
+
+        if(panel.getClass().getName().equals("Renderers.DynamicOverlay"))
+        {
+            playDifferentMusic(12);
+        }
+        else if(panel.getClass().getName().equals("Menus.MainMenu"))
+        {
+            playDifferentMusic(0);
+        }
+       
+
+        
     }
 
     public static void startGame() {
         SaveSystem.clearSave();
         launchFreshRun(testSeed, selectedPlayerClass);
+  //      playDifferentMusic(12);
     }
 
     public static void continueGame()
@@ -62,11 +83,12 @@ public class Game {
         String savedClass = (saveData.playerClass == null || saveData.playerClass.isBlank())
             ? selectedPlayerClass
             : saveData.playerClass;
+        String difficulty = saveData.difficulty;
 
         testSeed = savedSeed;
         selectedPlayerClass = savedClass;
 
-        DynamicOverlay gamePanel = buildGamePanel(savedSeed, savedClass);
+        DynamicOverlay gamePanel = buildGamePanel(savedSeed, savedClass,difficulty);
         if (gamePanel == null)
         {
             JOptionPane.showMessageDialog(frame, "Failed to build the saved map.");
@@ -74,6 +96,7 @@ public class Game {
         }
 
         gamePanel.loadGame();
+    //    playDifferentMusic(12);
         switchMenu(gamePanel);
         gamePanel.startGameThread();
     }
@@ -83,7 +106,7 @@ public class Game {
         testSeed = normalizeSeed(seed);
         selectedPlayerClass = (playerClass == null || playerClass.isBlank()) ? "Swordsman" : playerClass;
 
-        DynamicOverlay gamePanel = buildGamePanel(testSeed, selectedPlayerClass);
+        DynamicOverlay gamePanel = buildGamePanel(testSeed, selectedPlayerClass,selectedDifficulty);
         if (gamePanel == null)
         {
             System.err.println("Failed map render: No start room found.");
@@ -94,7 +117,7 @@ public class Game {
         gamePanel.startGameThread();
     }
 
-    private static DynamicOverlay buildGamePanel(String seed, String playerClass)
+    private static DynamicOverlay buildGamePanel(String seed, String playerClass, String difficulty)
     {
         System.out.println("Generating map...");
         mapGenerator gen1 = new mapGenerator(seed);
@@ -117,7 +140,7 @@ public class Game {
         }
 
         if (startRoom != null) {
-            return new DynamicOverlay(mapGrid, startRoom, seed, playerClass);
+            return new DynamicOverlay(mapGrid, startRoom, seed, playerClass,difficulty);
         }
 
         return null;
@@ -149,6 +172,16 @@ public class Game {
         {
             selectedPlayerClass = playerClass;
         }
+    }
+    public static void setSelectedDifficulty(String difficulty)
+    {
+        if(difficulty != null && !difficulty.isBlank())
+        {
+            selectedDifficulty = difficulty;
+        }
+    }
+    public static String getSelectedDifficulty() {
+        return selectedDifficulty;
     }
 
     public static void setSeed(String seed)
@@ -190,10 +223,35 @@ public class Game {
     public static void showNewGameMenu()
     {
         switchMenu(new NewGameMenu());
+  //      playDifferentMusic(0);
     }
 
     public static void quitApplication()
     {
         System.exit(0);
+    }
+    public static void playMusic(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+    }
+    public static void playSoundEffect(int i)
+    {
+        sound.setFile(i);
+        sound.play();
+    }
+    public static void playDifferentMusic(int i)
+    {
+        if(currentMusic == i)
+        {
+            return;
+        }
+        sound.stop();
+        sound.close();
+        sound.setFile(i);
+        sound.play();
+        sound.loop();
+        currentMusic = i;
     }
 }
