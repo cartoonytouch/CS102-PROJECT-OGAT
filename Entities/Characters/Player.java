@@ -32,7 +32,6 @@ import Items.Weapons.Sword;
 import Items.Weapons.Weapon;
 import Map.Room.RewardDrop;
 import Map.Room.Station;
-import MusicsandSounds.Sound;
 import Renderers.DynamicOverlay;
 
 public class Player extends GameCharacter {
@@ -46,8 +45,6 @@ public class Player extends GameCharacter {
     public final int screenX;
     public final int screenY;
 
-    Sound sound = new Sound();
-
     public boolean canStun;
 
     public int mana;
@@ -56,7 +53,6 @@ public class Player extends GameCharacter {
     public Inventory inventory;
 
     public String playerClass;
-    public String difficulty;
     public boolean canParry;
 
     public boolean isDashing = false;
@@ -157,10 +153,10 @@ public class Player extends GameCharacter {
 
     public Player(DynamicOverlay overlay, KeyHandler keyH)
     {
-        this(overlay, keyH, "Swordsman","Easy");
+        this(overlay, keyH, "Swordsman");
     }
 
-    public Player(DynamicOverlay overlay, KeyHandler keyH, String playerClass, String difficulty)
+    public Player(DynamicOverlay overlay, KeyHandler keyH, String playerClass)
     {
         this.overlay = overlay;
         this.keyH = keyH;
@@ -172,7 +168,6 @@ public class Player extends GameCharacter {
 
         this.inventory = new Inventory();
         this.playerClass = normalizePlayerClass(playerClass);
-        this.difficulty = difficulty;
 
         setDefault();
         seedDiscoveredItemPool();
@@ -614,7 +609,6 @@ public class Player extends GameCharacter {
         {
             weapon.swing();
             isAttacking = true;
-            playSoundEffect(3);
             
             attackCounter = 0;
             damageAppliedForThisAttack = false;
@@ -723,11 +717,6 @@ public class Player extends GameCharacter {
     {
         if (amount <= 0 || health <= 0 || isInvisible || isParrying)
         {
-            if(isParrying && amount > 0)
-            {
-                playSoundEffect(10);
-                return;
-            }
             return;
         }
 
@@ -1563,27 +1552,5 @@ public class Player extends GameCharacter {
         inventory.add(itemReward);
         discoverItem(itemReward);
         overlay.currentRoom.clearRewardDrop();
-    }
-    public void playMusic(int i)
-    {
-        sound.setFile(i);
-        sound.play();
-        sound.loop();
-    }
-    public void playSoundEffect(int i)
-    {
-        sound.setFile(i);
-        sound.play();
-    }
-    public void playDifferentMusic(int i)
-    {
-        sound.stop();
-        sound.close();
-        sound.setFile(i);
-        sound.play();
-        sound.loop();
-    }
-    public String getDifficulty() {
-        return difficulty;
     }
 }

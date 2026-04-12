@@ -4,13 +4,9 @@ import java.awt.*;
 
 import javax.swing.JTextField;
 
-import Renderers.DifficultyProgress;
-import Renderers.GameData;
-
 class NewGameMenu extends Menu {
 
     private JTextField seedField;
-    public static DifficultyProgress difficultyProgress = new DifficultyProgress();
 
     @Override
     protected void setButtons() {
@@ -23,24 +19,16 @@ class NewGameMenu extends Menu {
 
         buttons.add(new MenuButton(140, 390, 480, 50, () -> {
             System.out.println("Easy");
-            Game.setSelectedDifficulty("Easy");
-            
             //GameEngine.setDifficulty("Easy");
         }));
 
         buttons.add(new MenuButton(140, 480, 480, 50, () -> {
             System.out.println("Normal");
-            Game.setSelectedDifficulty("Medium");
             //GameEngine.setDifficulty("Normal");
         }));
 
         buttons.add(new MenuButton(140, 570, 480, 50, () -> {
-            if(difficultyProgress.isMediumBeaten)
-            {
-                System.out.println("Hard");
-                Game.setSelectedDifficulty("Hard");
-            }
-
+            System.out.println("Hard");
             //GameEngine.setDifficulty("Hard");
         }));
 
@@ -87,32 +75,10 @@ class NewGameMenu extends Menu {
         g2.setStroke(new BasicStroke(5));
         g2.setColor(new Color(255, 215, 0, 150));
 
-        
-        if(!difficultyProgress.isMediumBeaten)
-        {
-            g2.setColor(new Color(0, 0, 0, 200));
-            g2.fillRect(140, 570, 480, 50); 
-        }
-
-        g2.setColor(new Color(255, 215, 0, 150));
-        
-
         String playerClass = Game.getSelectedPlayerClass();
         if ("Swordsman".equals(playerClass)) g2.drawRect(1010, 390, 480, 50);
         else if ("Spearman".equals(playerClass)) g2.drawRect(1010, 480, 480, 50);
         else if ("Smasher".equals(playerClass)) g2.drawRect(1010, 570, 480, 50);
-
-        g2.setStroke(new BasicStroke(5));
-        g2.setColor(new Color(0, 215, 200, 150));
-
-        String difficulty = Game.getSelectedDifficulty();
-        if ("Easy".equals(difficulty)) g2.drawRect(140, 390, 480, 50);
-        else if ("Medium".equals(difficulty)) g2.drawRect(140, 480, 480, 50);
-        else if ("Hard".equals(difficulty) && difficultyProgress.isMediumBeaten) g2.drawRect(140, 570, 480, 50);
-
-
-        
-
 
         g2.setColor(new Color(255, 255, 255, 220));
         g2.setFont(new Font("Arial", Font.BOLD, 22));

@@ -22,7 +22,6 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
 import Menus.Game;
-import MusicsandSounds.Sound;
 import Entities.Heart;
 import Entities.Projectile;
 import Entities.Characters.Player;
@@ -37,7 +36,6 @@ public class DynamicOverlay extends JPanel implements Runnable {
     private static final int MINIMAP_TILE_SIZE = 26;
     private static final int MINIMAP_PADDING = 12;
     private static final int MINIMAP_MARGIN = 18;
-    public int currentMusic = 12;
 
     final int originalTileSize = 16;
     final int scale = 5;
@@ -47,8 +45,6 @@ public class DynamicOverlay extends JPanel implements Runnable {
     public final int maxScreenRow = 9;
     public final int screenWidth = tileSize * maxScreenCol;
     public final int screenHeight = tileSize * maxScreenRow;
-
-    Sound sound = Game.sound;
 
     public Room[][] mapGrid;
     public int curGridX;
@@ -84,10 +80,10 @@ public class DynamicOverlay extends JPanel implements Runnable {
 
     public DynamicOverlay(Room[][] grid, Room startRoom)
     {
-        this(grid, startRoom, "0", "Swordsman","Easy");
+        this(grid, startRoom, "0", "Swordsman");
     }
 
-    public DynamicOverlay(Room[][] grid, Room startRoom, String mapSeed, String playerClass, String difficulty)
+    public DynamicOverlay(Room[][] grid, Room startRoom, String mapSeed, String playerClass)
     {
         this.mapSeed = (mapSeed == null || mapSeed.isBlank()) ? "0" : mapSeed;
         this.mapGrid = grid;
@@ -95,7 +91,7 @@ public class DynamicOverlay extends JPanel implements Runnable {
         this.curGridY = startRoom.gridY;
         this.currentRoom = startRoom;
         this.playerHeart = new Heart(this);
-        this.player = new Player(this, keyH, playerClass, difficulty);
+        this.player = new Player(this, keyH, playerClass);
 
         if (this.currentRoom != null)
         {
@@ -162,20 +158,6 @@ public class DynamicOverlay extends JPanel implements Runnable {
             roomRenderer.setActiveRoom(currentRoom);
             bindCurrentRoomEnemies();
             revealRooms();
-
-        if (currentRoom.type.equals("Boss")) {
-            System.out.println(currentMusic + " Boss");
-            playDifferentMusic(2);
-            System.out.println("Boss music!");
-            System.out.println(currentMusic + " Boss");
-        } 
-        else {
-            System.out.println(currentMusic + " Normal");
-            playDifferentMusic(12);
-            System.out.println("Room music!");
-            System.out.println(currentMusic + " Normal");
-        }
-
 
             int roomPixelWidth = currentRoom.width * tileSize;
             int roomPixelHeight = currentRoom.height * tileSize;
@@ -734,29 +716,5 @@ public void update()
                 g2.drawString(player.getInventory().getItems()[i].getName(), invX + 20, itemY + 20*i);
             }
         }
-    }
-    public void playMusic(int i)
-    {
-        sound.setFile(i);
-        sound.play();
-        sound.loop();
-    }
-    public void playSoundEffect(int i)
-    {
-        sound.setFile(i);
-        sound.play();
-    }
-    public void playDifferentMusic(int i)
-    {
-        if(currentMusic == i)
-        {
-            return;
-        }
-        sound.stop();
-        sound.close();
-        sound.setFile(i);
-        sound.play();
-        sound.loop();
-        currentMusic = i;
     }
 }
